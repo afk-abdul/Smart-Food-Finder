@@ -24,3 +24,5 @@ class UserLoginView(APIView):
         if user:
             return Response({"message": "Login successful", "user_id": user.id})
         return Response({"error": "Invalid credentials"}, status=400)
+
+

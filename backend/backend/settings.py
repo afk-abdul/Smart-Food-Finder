@@ -83,9 +83,20 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 import os
 from pathlib import Path
 import dj_database_url
+
 DATABASES = {
-    'default': dj_database_url.config(default='postgresql://postgres:MisterBush123@db.xgrhrkubxttbtaiguvei.supabase.co:5432/postgres', conn_max_age=600)
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.xgrhrkubxttbtaiguvei',
+        'PASSWORD': 'MisterBush123%$#',  
+        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
+        'PORT': '6543',
+    }
 }
+
+
+
 
 
 
