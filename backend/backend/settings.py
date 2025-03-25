@@ -44,6 +44,22 @@ INSTALLED_APPS = [
     'restaurants',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Token expires in 1 day
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7), # Refresh token expires in 7 days
+    'ROTATE_REFRESH_TOKENS': True,
+}
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -82,7 +98,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 import os
 from pathlib import Path
-import dj_database_url
 
 DATABASES = {
     'default': {

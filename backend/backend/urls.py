@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path,include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
-    path('restaurants/', include('restaurants.urls')),
+    path('admin/', admin.site.urls), #database  manager
+    path('users/', include('users.urls')), #search restruant,picture,menu search filter
+    path('restaurants/', include('restaurants.urls')), #uploads its detail
 ]
