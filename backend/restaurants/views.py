@@ -1,12 +1,14 @@
 from rest_framework.generics import CreateAPIView
+from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import RestaurantSerializer
-from .models import Restaurant
+from .serializers import RestaurantSerializer ,MenuItemSerializer ,BranchSerializer,MenuCategorySerializer,NotificationRestaurantSerializer,DealSerializer
+from .models import Restaurant ,MenuItem,Branch,MenuCategory,DealItem,Deal,NotificationRestaurant
 from rest_framework_simplejwt.tokens import RefreshToken,AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
+from django.utils.timezone import now
 
 
 class RestaurantSignupView(CreateAPIView):
@@ -35,6 +37,24 @@ class ProtectedView(APIView):
         return Response({"message":f"Your successfully authenicated {request.restaurant.name}"})
     
 
+class GetAccessTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh_token")
+
+        if not refresh_token:
+            return Response({"error": "Refresh token is required"}, status=400)
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            new_access_token = str(refresh.access_token)
+            return Response({"access_token": new_access_token})
+        except TokenError:
+            return Response({"error": "Invalid or expired refresh token"}, status=400)
+
+
+
 class VerifyAccessTokenView(APIView):
     permission_classes = [AllowAny]
 
@@ -50,3 +70,78 @@ class VerifyAccessTokenView(APIView):
         except TokenError:
             return Response({"error": "Invalid or expired access token"}, status=400)
 
+class MenuItemListCreateView(generics.ListCreateAPIView):
+    serializer_class=MenuItemSerializer
+    permission_classes=[IsAuthenticated]
+
+    def get_queryset(self):
+        return MenuItem.objects.filter(restaurant=self.request.user)
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(restaurant=self.request.user)
+        else:
+            print(serializer.errors)
+
+
+class MenuItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MenuItemSerializer
+    permission_classes = [IsAuthenticated] 
+
+    def get_queryset(self):
+        return MenuItem.objects.filter(restaurant=self.request.user)
+
+
+class BranchListCreateView(generics.ListCreateAPIView):
+    serializer_class=BranchSerializer
+    permission_classes=[IsAuthenticated]
+
+    def get_queryset(self):
+        return Branch.objects.filter(restaurant=self.request.user)
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            branches=Branch.objects.filter(restaurant=self.request.user)
+            is_main_branch = not branches.exists()
+            serializer.save(restaurant=self.request.user,is_main=is_main_branch)
+
+
+class BranchDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BranchSerializer
+    permission_classes = [IsAuthenticated] 
+
+    def get_queryset(self):
+        return Branch.objects.filter(restaurant=self.request.user)
+
+
+class MenuCategoryListView(generics.RetrieveAPIView):
+    queryset=MenuCategory.objects.all()
+    serializer_class=MenuCategorySerializer
+    permission_classes=[AllowAny]
+
+
+class NotficationListView(generics.RetrieveUpdateAPIView):
+    serializer_class=NotificationRestaurantSerializer
+    permission_classes=[IsAuthenticated]
+    
+    def get_queryset(self):
+        return NotificationRestaurant.objects.filter(restaurant=self.request.user)
+    
+
+
+class DealCreateView(generics.CreateAPIView):
+    serializer_class = DealSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(restaurant=self.request.user)
+    
+    def get_queryset(self):
+        # Get valid deals for today or future dates
+        deals = Deal.objects.filter(is_valid=True, dateTime__gte=now().date())
+
+        # Get related DealItems for these deals
+        deal_items = DealItem.objects.filter(deal_id__in=deals.values_list("id", flat=True))
+
+        return deals, deal_items
+
+        
