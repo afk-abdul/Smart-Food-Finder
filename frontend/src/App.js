@@ -6,7 +6,7 @@ import RestaurantSignup from './pages/restaurantsignup';
 import Navbar from './components/Navbar';
 import Home from './pages/home'
 import PrivateRoute from './components/PrivateRoute';
-
+import MenuItems from './pages/MenuItems';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -22,7 +22,8 @@ function App() {
         {isAuthenticated ? (
           <>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard setIsAuthenticated={setIsAuthenticated} /></PrivateRoute>} />
+            <Route path="/menuitems" element={<PrivateRoute><MenuItems /></PrivateRoute>} /> 
             <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (

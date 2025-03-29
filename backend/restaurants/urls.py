@@ -11,7 +11,7 @@ urlpatterns = [
     path("menu-items/<int:pk>/", MenuItemDetailView.as_view(), name="menu-item-detail"),
     path("branchs/",BranchListCreateView.as_view(),name="branch-create"),
     path("branchs/<int:pk>/",BranchDetailView.as_view(),name="branch-detail"),
-    path("menuCategory",MenuCategoryListView.as_view(),name="menuCategory"),
+    path("menuCategory/",MenuCategoryListView.as_view(),name="menuCategory"),
     path("notifications/<int:pk>/",NotficationListView.as_view(),name="notification-detail"),
 
 

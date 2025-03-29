@@ -15,10 +15,12 @@ function Login({ setIsAuthenticated }) {
     
     axios.post("http://127.0.0.1:8000/restaurants/login/", credentials)
       .then(response => {
-        localStorage.setItem("access_token", response.data.access);
-        localStorage.setItem("refresh_token", response.data.refresh);
+        localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
+        //console.log(response.data.refresh_token);
+        //console.log(response.data.access_token);
         setIsAuthenticated(true);
-        navigate("/dashboard");  // Redirect after login
+        navigate("/dashboard");  
       })
       .catch(error => {
         console.error("Login failed:", error);

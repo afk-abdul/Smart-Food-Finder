@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 function Dashboard() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = ({setIsAuthenticated}) => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    setIsAuthenticated=false;
     navigate("/Login");
   };
 

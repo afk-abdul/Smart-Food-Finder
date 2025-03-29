@@ -22,6 +22,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model=MenuItem
         fields='__all__'
+        extra_kwargs = {'restaurant': {'read_only': True}}
 
 
 class BranchSerializer(serializers.ModelSerializer):

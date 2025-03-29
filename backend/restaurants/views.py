@@ -73,13 +73,17 @@ class VerifyAccessTokenView(APIView):
 class MenuItemListCreateView(generics.ListCreateAPIView):
     serializer_class=MenuItemSerializer
     permission_classes=[IsAuthenticated]
-
     def get_queryset(self):
-        return MenuItem.objects.filter(restaurant=self.request.user)
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        if restaurant:
+            return MenuItem.objects.filter(restaurant=restaurant)
+        return MenuItem.objects.none()
+
     
     def perform_create(self, serializer):
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
         if serializer.is_valid():
-            serializer.save(restaurant=self.request.user)
+            serializer.save(restaurant=restaurant)
         else:
             print(serializer.errors)
 
@@ -89,7 +93,10 @@ class MenuItemDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated] 
 
     def get_queryset(self):
-        return MenuItem.objects.filter(restaurant=self.request.user)
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        if restaurant:
+            return MenuItem.objects.filter(restaurant=restaurant)
+        return MenuItem.objects.none()
 
 
 class BranchListCreateView(generics.ListCreateAPIView):
@@ -113,7 +120,7 @@ class BranchDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Branch.objects.filter(restaurant=self.request.user)
 
 
-class MenuCategoryListView(generics.RetrieveAPIView):
+class MenuCategoryListView(generics.ListAPIView):
     queryset=MenuCategory.objects.all()
     serializer_class=MenuCategorySerializer
     permission_classes=[AllowAny]
