@@ -44,24 +44,25 @@ class NotificationRestaurantSerializer(serializers.ModelSerializer):
 class DealItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = DealItem
-        fields = ["item"]
+        fields = ["item","quantity"]
 
 
 
 class DealSerializer(serializers.ModelSerializer):
-    items = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+    items = DealItemSerializer(many=True, write_only=True)
 
     class Meta:
         model = Deal
-        fields = ["restaurant", "total_price", "items"]
+        fields = ["total_price","description","dateTime","image","is_valid", "items"]
+        extra_kwargs = {'restaurant': {'read_only': True}}
 
     def create(self, validated_data):
         items_data = validated_data.pop("items")  # List of MenuItem IDs
         deal = Deal.objects.create(**validated_data)
 
         # Create DealItem entries for each MenuItem ID
-        for item_id in items_data:
-            menu_item = MenuItem.objects.get(id=item_id)
-            DealItem.objects.create(item=menu_item, deal_id=deal)
+        for item in items_data:
+            print(item)
+            DealItem.objects.create(item=item["item"], deal_id=deal, quantity=item["quantity"])
 
         return deal

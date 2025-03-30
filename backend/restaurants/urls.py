@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import RestaurantSignupView, RestaurantLoginView, ProtectedView,VerifyAccessTokenView,MenuItemDetailView,MenuItemListCreateView,BranchDetailView,BranchListCreateView
-from .views import MenuCategoryListView,NotficationListView,GetAccessTokenView
+from .views import MenuCategoryListView,NotficationListView,GetAccessTokenView,DealCreateView
 urlpatterns = [
     path('signup/', RestaurantSignupView.as_view(), name='restaurant-signup'),
     path('login/', RestaurantLoginView.as_view(), name='restaurant-login'),
@@ -13,6 +13,7 @@ urlpatterns = [
     path("branchs/<int:pk>/",BranchDetailView.as_view(),name="branch-detail"),
     path("menuCategory/",MenuCategoryListView.as_view(),name="menuCategory"),
     path("notifications/<int:pk>/",NotficationListView.as_view(),name="notification-detail"),
+    path("create-deal/",DealCreateView.as_view(),name="create-deal"),
 
 
 ]

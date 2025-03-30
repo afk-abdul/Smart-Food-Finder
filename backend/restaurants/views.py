@@ -140,11 +140,12 @@ class DealCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(restaurant=self.request.user)
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        serializer.save(restaurant=restaurant)
     
     def get_queryset(self):
-        # Get valid deals for today or future dates
-        deals = Deal.objects.filter(is_valid=True, dateTime__gte=now().date())
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        deals = Deal.objects.filter(restaurant=restaurant,is_valid=True, dateTime__gte=now().date())
 
         # Get related DealItems for these deals
         deal_items = DealItem.objects.filter(deal_id__in=deals.values_list("id", flat=True))

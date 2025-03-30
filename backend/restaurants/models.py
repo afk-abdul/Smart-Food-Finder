@@ -54,11 +54,12 @@ class Deal(models.Model):
     description=models.TextField(blank=True,null=True)
     is_valid=models.BooleanField(default=True)
     dateTime=models.DateField(default=now ,blank=True,null=True)
-    imgae=models.ImageField(blank=True,null=True)
+    image=models.ImageField(blank=True,null=True)
     total_price = models.IntegerField()
 
 class DealItem(models.Model):
     item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
+    quantity=models.IntegerField(default=1)
     deal_id=models.ForeignKey(Deal,on_delete=models.CASCADE)
 
 class NotificationRestaurant(models.Model):
