@@ -40,7 +40,7 @@ class NotificationRestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model=NotificationRestaurant
         fields='__all__'
-
+        extra_kwargs={'restaurant':{'read_only':True}}
 
 class DealItemSerializer(serializers.ModelSerializer):
     item_name = serializers.CharField(source="item.name", read_only=True)

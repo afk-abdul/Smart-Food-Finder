@@ -10,6 +10,11 @@ import MenuItems from './pages/MenuItems';
 import CreateDeal from './pages/Deal'
 import DealsView from './pages/DealView';
 import Branch from './pages/Branch'
+import BranchMap from './pages/Map';
+import ViewBranches from './pages/ViewBranch';
+import ViewNotifications from './pages/notification';
+
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -30,6 +35,9 @@ function App() {
             <Route path="/createdeal" element={<PrivateRoute><CreateDeal /></PrivateRoute>} /> 
             <Route path="/dealview" element={<PrivateRoute><DealsView /></PrivateRoute>} /> 
             <Route path="/branch" element={<PrivateRoute><Branch /></PrivateRoute>} /> 
+            <Route path="/viewbranches" element={<PrivateRoute><ViewBranches /></PrivateRoute>} /> 
+            <Route path="/viewnotifications" element={<PrivateRoute><ViewNotifications /></PrivateRoute>} /> 
+            <Route path="/branchmap" element={<PrivateRoute><BranchMap /></PrivateRoute>} /> 
             <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (

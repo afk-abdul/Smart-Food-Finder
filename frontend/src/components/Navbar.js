@@ -13,6 +13,9 @@ function Navbar({ isAuthenticated }) {
             <li><Link to="/createdeal">MakeDeal</Link></li>
             <li><Link to="/dealview">DealView</Link></li>
             <li><Link to="/branch">Branches</Link></li>
+            <li><Link to="/viewbranches">ViewBranches</Link></li>
+            <li><Link to="/viewnotifications">ViewNotifications</Link></li>
+            <li><Link to="/branchmap">Map</Link></li>
           </>
         ) : (
           <>

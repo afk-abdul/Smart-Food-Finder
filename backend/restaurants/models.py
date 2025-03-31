@@ -44,8 +44,10 @@ class MenuItem(models.Model):
 class Branch(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     location = models.TextField()
-    latitude = models.TextField(blank=True, null=True)
-    longitude = models.TextField(blank=True, null=True)
+    country = models.CharField(max_length=100,default="Pakistan")  # Store country name
+    city = models.CharField(max_length=100,default="Lahore")  # Store city name
+    latitude = models.FloatField(blank=True, null=True)  # Use FloatField
+    longitude = models.FloatField(blank=True, null=True)  # Use FloatField
     timing = models.TimeField(blank=True, null=True)
     is_main = models.BooleanField(default=False)
 

@@ -114,7 +114,7 @@ class BranchListCreateView(generics.ListCreateAPIView):
             serializer.save(restaurant=restaurant,is_main=is_main_branch)
 
 
-class BranchDetailView(generics.UpdateDestroyAPIView):
+class BranchDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BranchSerializer
     permission_classes = [IsAuthenticated] 
 
@@ -130,14 +130,32 @@ class MenuCategoryListView(generics.ListAPIView):
     permission_classes=[AllowAny]
 
 
-class NotficationListView(generics.RetrieveUpdateAPIView):
+class NotficationListView(generics.ListCreateAPIView):
     serializer_class=NotificationRestaurantSerializer
     permission_classes=[IsAuthenticated]
     
-    def get_queryset(self):
-        return NotificationRestaurant.objects.filter(restaurant=self.request.user)
-    
+    def perform_create(self, serializer):
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        return serializer.save(restaurant=restaurant)
 
+    def get_queryset(self):
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        return NotificationRestaurant.objects.filter(restaurant=restaurant)
+    
+class NotficationUpdateView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+            notification = NotificationRestaurant.objects.get(restaurant=restaurant,id=pk)
+            notification.is_read = not notification.is_read
+            notification.save()
+            return Response({"message": "Notification updated", "is_read": notification.is_read})
+        except NotificationRestaurant.DoesNotExist:
+            return Response({"error": "Notification not found"}, status=404)
+
+  
 
 class DealCreateView(generics.ListCreateAPIView):
     serializer_class = DealSerializer
