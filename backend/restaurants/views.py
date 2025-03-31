@@ -104,20 +104,24 @@ class BranchListCreateView(generics.ListCreateAPIView):
     permission_classes=[IsAuthenticated]
 
     def get_queryset(self):
-        return Branch.objects.filter(restaurant=self.request.user)
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        return Branch.objects.filter(restaurant=restaurant)
     def perform_create(self, serializer):
         if serializer.is_valid():
-            branches=Branch.objects.filter(restaurant=self.request.user)
+            restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+            branches=Branch.objects.filter(restaurant=restaurant)
             is_main_branch = not branches.exists()
-            serializer.save(restaurant=self.request.user,is_main=is_main_branch)
+            serializer.save(restaurant=restaurant,is_main=is_main_branch)
 
 
-class BranchDetailView(generics.RetrieveUpdateDestroyAPIView):
+class BranchDetailView(generics.UpdateDestroyAPIView):
     serializer_class = BranchSerializer
     permission_classes = [IsAuthenticated] 
 
     def get_queryset(self):
-        return Branch.objects.filter(restaurant=self.request.user)
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+
+        return Branch.objects.filter(restaurant=restaurant)
 
 
 class MenuCategoryListView(generics.ListAPIView):
@@ -135,7 +139,7 @@ class NotficationListView(generics.RetrieveUpdateAPIView):
     
 
 
-class DealCreateView(generics.CreateAPIView):
+class DealCreateView(generics.ListCreateAPIView):
     serializer_class = DealSerializer
     permission_classes = [IsAuthenticated]
 
@@ -145,11 +149,16 @@ class DealCreateView(generics.CreateAPIView):
     
     def get_queryset(self):
         restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
-        deals = Deal.objects.filter(restaurant=restaurant,is_valid=True, dateTime__gte=now().date())
+        return Deal.objects.filter(restaurant=restaurant, is_valid=True, dateTime__gte=now().date())
+    
+class DealUpdateView(generics.UpdateAPIView):
+    serializer_class = DealSerializer
+    permission_classes = [IsAuthenticated]
 
-        # Get related DealItems for these deals
-        deal_items = DealItem.objects.filter(deal_id__in=deals.values_list("id", flat=True))
-
-        return deals, deal_items
+    def get_queryset(self):
+        restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
+        if restaurant:
+            return Deal.objects.filter(restaurant=restaurant)
+        return Deal.objects.none()
 
         

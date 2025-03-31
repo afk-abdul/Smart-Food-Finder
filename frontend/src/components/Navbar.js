@@ -11,6 +11,8 @@ function Navbar({ isAuthenticated }) {
             <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/menuitems">MenuItems</Link></li>
             <li><Link to="/createdeal">MakeDeal</Link></li>
+            <li><Link to="/dealview">DealView</Link></li>
+            <li><Link to="/branch">Branches</Link></li>
           </>
         ) : (
           <>

@@ -8,6 +8,8 @@ import Home from './pages/home'
 import PrivateRoute from './components/PrivateRoute';
 import MenuItems from './pages/MenuItems';
 import CreateDeal from './pages/Deal'
+import DealsView from './pages/DealView';
+import Branch from './pages/Branch'
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -26,6 +28,8 @@ function App() {
             <Route path="/dashboard" element={<PrivateRoute><Dashboard setIsAuthenticated={setIsAuthenticated} /></PrivateRoute>} />
             <Route path="/menuitems" element={<PrivateRoute><MenuItems /></PrivateRoute>} /> 
             <Route path="/createdeal" element={<PrivateRoute><CreateDeal /></PrivateRoute>} /> 
+            <Route path="/dealview" element={<PrivateRoute><DealsView /></PrivateRoute>} /> 
+            <Route path="/branch" element={<PrivateRoute><Branch /></PrivateRoute>} /> 
             <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (

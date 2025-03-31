@@ -60,7 +60,7 @@ class Deal(models.Model):
 class DealItem(models.Model):
     item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     quantity=models.IntegerField(default=1)
-    deal_id=models.ForeignKey(Deal,on_delete=models.CASCADE)
+    deal_id=models.ForeignKey(Deal,on_delete=models.CASCADE,related_name="items")
 
 class NotificationRestaurant(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
