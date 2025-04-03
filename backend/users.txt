@@ -1,0 +1,8 @@
+
+for restaurant user
+email: abdul@gmail.com
+pass: afaq123
+
+admin
+afaq
+afaq123

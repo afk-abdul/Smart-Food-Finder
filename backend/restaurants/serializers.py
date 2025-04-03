@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Restaurant ,MenuItem,Branch,MenuCategory,Deal,DealItem,NotificationRestaurant
 
 class RestaurantSerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta: 
         model = Restaurant
         fields = ['id', 'email', 'name', 'cuisine', 'phone', 'password']
         extra_kwargs = {'password': {'write_only': True}}
