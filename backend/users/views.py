@@ -3,8 +3,19 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserSerializer
 from django.contrib.auth import get_user_model
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .permissions import SupabaseJWTAuthentication
+from .serializers import UserSerializer
+
+
+class ProtectedView(APIView):
+    permission_classes = [SupabaseJWTAuthentication]
+
+    def get(self, request):
+        return Response({"message": "You are authenticated!", "user": request.user})
+
 
 User = get_user_model()
 
