@@ -37,7 +37,7 @@ class MenuItem(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(blank=True, null=True)
+    image = models.BinaryField(blank=True, null=True)    
     category = models.ForeignKey(MenuCategory, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
 
@@ -50,13 +50,14 @@ class Branch(models.Model):
     longitude = models.FloatField(blank=True, null=True)  # Use FloatField
     timing = models.TimeField(blank=True, null=True)
     is_main = models.BooleanField(default=False)
+    image = models.BinaryField(blank=True, null=True)
 
 class Deal(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     description=models.TextField(blank=True,null=True)
     is_valid=models.BooleanField(default=True)
     dateTime=models.DateField(default=now ,blank=True,null=True)
-    image=models.ImageField(blank=True,null=True)
+    image = models.BinaryField(blank=True, null=True)
     total_price = models.IntegerField()
 
 class DealItem(models.Model):

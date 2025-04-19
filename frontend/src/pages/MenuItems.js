@@ -74,8 +74,9 @@ function MenuItems() {
       formData.append("price", newItem.price);
       formData.append("category", newItem.category); // ID of the category
 
-      if (newItem.image) {
-        formData.append("image", newItem.image);
+      if (newItem.image_upload) {
+        formData.append("image_upload", newItem.image_upload);
+        console.log(newItem.image_upload);
       }
 
       const response = await axiosInstance.post("/menu-items/", formData, {
@@ -91,11 +92,22 @@ function MenuItems() {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0] || null;
-    setNewItem((prevItem) => ({
-      ...prevItem,
-      image: file,
-    }));
+  
+    if (file) {
+      const reader = new FileReader();
+  
+      reader.onloadend = () => {
+        const base64String = reader.result.split(",")[1]; // remove data:image/... prefix
+        setNewItem((prevItem) => ({
+          ...prevItem,
+          image_upload: base64String,
+        }));
+      };
+  
+      reader.readAsDataURL(file); // convert file to base64
+    }
   };
+  
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
@@ -120,7 +132,7 @@ function MenuItems() {
                   }}
                 >
                   <img
-                    src={item.image}
+                    src={`data:image/png;base64,${item.image}`}
                     alt={item.name}
                     style={{ width: "100px", height: "100px" }}
                   />

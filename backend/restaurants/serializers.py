@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Restaurant ,MenuItem,Branch,MenuCategory,Deal,DealItem,NotificationRestaurant
-
+import base64
 class RestaurantSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Restaurant
@@ -19,17 +19,65 @@ class RestaurantSerializer(serializers.ModelSerializer):
         return restaurant
 
 class MenuItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=MenuItem
-        fields='__all__'
-        extra_kwargs = {'restaurant': {'read_only': True}}
+    image = serializers.SerializerMethodField()
+    image_upload = serializers.CharField(write_only=True, required=False)
 
+    class Meta:
+        model = MenuItem
+        fields = '__all__'
+        extra_kwargs = {
+            'restaurant': {'read_only': True}
+        }
+
+    def get_image(self, obj):
+        if obj.image:
+            return base64.b64encode(obj.image).decode("utf-8")
+        return None
+
+    def create(self, validated_data):
+        image_data = validated_data.pop("image_upload", None)
+        print("Updating image_upload (base64):", image_data[:30] + "..." if image_data else "None")
+
+        if image_data:
+            try:
+                validated_data["image"] = base64.b64decode(image_data)
+            except Exception as e:
+                print("Image decode error:", e)
+                raise serializers.ValidationError("Invalid image data")
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        image_data = validated_data.pop("image_upload", None)
+        if image_data:
+            try:
+                instance.image = base64.b64decode(image_data)
+            except Exception:
+                raise serializers.ValidationError("Invalid image data")
+        return super().update(instance, validated_data)
 
 class BranchSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    image_upload = serializers.CharField(write_only=True, required=False)
     class Meta:
         model=Branch
         fields='__all__'
         extra_kwargs={'restaurant':{'read_only':True}}
+    def get_image(self, obj):
+        if obj.image:
+            return base64.b64encode(obj.image).decode('utf-8')
+        return None
+
+    def create(self, validated_data):
+        image_data = validated_data.pop("image_upload", None)
+        if image_data:
+            validated_data["image"] = base64.b64decode(image_data)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        image_data = validated_data.pop("image_upload", None)
+        if image_data:
+            instance.image = base64.b64decode(image_data)
+        return super().update(instance, validated_data)
 
 class MenuCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,11 +100,18 @@ class DealItemSerializer(serializers.ModelSerializer):
 
 class DealSerializer(serializers.ModelSerializer):
     items = DealItemSerializer(many=True)
-
+    image = serializers.SerializerMethodField()
+    image_upload = serializers.CharField(write_only=True, required=False)
     class Meta:
         model = Deal
         fields = ["id","total_price","description","dateTime","image","is_valid", "items"]
         extra_kwargs = {"id": {"read_only": True}, "restaurant": {"read_only": True}}
+
+    def get_image(self, obj):
+        if obj.image:
+            return base64.b64encode(obj.image).decode('utf-8')
+        return None
+
 
     def update(self, instance, validated_data):
         # Extract nested items data
@@ -66,7 +121,9 @@ class DealSerializer(serializers.ModelSerializer):
         instance.total_price = validated_data.get("total_price", instance.total_price)
         instance.description = validated_data.get("description", instance.description)
         instance.dateTime = validated_data.get("dateTime", instance.dateTime)
-        instance.image = validated_data.get("image", instance.image)
+        image_data = validated_data.pop("image_upload", None)
+        if image_data:
+            instance.image = base64.b64decode(image_data)
         instance.is_valid = validated_data.get("is_valid", instance.is_valid)
         instance.save()
 
@@ -100,7 +157,9 @@ class DealSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         items_data = validated_data.pop("items")  # List of MenuItem IDs
         deal = Deal.objects.create(**validated_data)
-
+        image_data = validated_data.pop("image_upload", None)
+        if image_data:
+            validated_data["image"] = base64.b64decode(image_data)
         # Create DealItem entries for each MenuItem ID
         for item in items_data:
             print(item)
