@@ -27,7 +27,7 @@ import {
 } from "../../components/ui/popover";
 import { Slider } from "../../components/ui/slider";
 import { restaurants } from "../../data/restaurant"; // Using the correct import path
-import { AuthContext } from "../../App";
+import { AuthContext } from "../../context/AuthContext";
 
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,7 +38,7 @@ function HomePage() {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
-  const { user, handleLogout } = useContext(AuthContext);
+  const { user, handleLogout } = useContext(AuthContext); // idar change karli
 
   // Generate all possible search suggestions
   const allSuggestions = [
