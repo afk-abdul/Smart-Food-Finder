@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Loader from "../components/Loader";
-import foodImage from "../food.png";
+import Loader from "../../components/Loader";
+import foodImage from "../../food.png";
 
 const AuthPage = ({ onAuthSuccess }) => {
   const [isLogin, setIsLogin] = useState(false);

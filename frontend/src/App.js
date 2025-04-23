@@ -7,24 +7,24 @@ import {
 } from "react-router-dom";
 
 // Existing page imports
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import RestaurantSignup from "./pages/restaurantsignup";
+import Login from "./pages/restaurantOwner/Login";
+import Dashboard from "./pages/restaurantOwner/Dashboard";
+import RestaurantSignup from "./pages/restaurantOwner/restaurantsignup";
 import Navbar from "./components/Navbar";
-import Home from "./pages/home";
+import Home from "./pages/restaurantOwner/home";
 import PrivateRoute from "./components/PrivateRoute";
-import MenuItems from "./pages/MenuItems";
-import CreateDeal from "./pages/Deal";
-import DealsView from "./pages/DealView";
-import Branch from "./pages/Branch";
-import BranchMap from "./pages/Map";
-import ViewBranches from "./pages/ViewBranch";
-import ViewNotifications from "./pages/notification";
-import AuthPage from "./pages/userAuthentication";
+import MenuItems from "./pages/restaurantOwner/MenuItems";
+import CreateDeal from "./pages/restaurantOwner/Deal";
+import DealsView from "./pages/restaurantOwner/DealView";
+import Branch from "./pages/restaurantOwner/Branch";
+import BranchMap from "./pages/restaurantOwner/Map";
+import ViewBranches from "./pages/restaurantOwner/ViewBranch";
+import ViewNotifications from "./pages/restaurantOwner/notification";
+import AuthPage from "./pages/restaurantFinder/userAuthentication";
 
 // Restaurant finder page imports
-import HomePage from "./pages/HomePage";
-import RestaurantPage from "./pages/RestaurantPage";
+import HomePage from "./pages/restaurantFinder/HomePage";
+import RestaurantPage from "./pages/restaurantFinder/RestaurantPage";
 
 // Styles
 import "./index.css";

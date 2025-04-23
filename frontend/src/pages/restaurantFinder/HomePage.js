@@ -16,18 +16,18 @@ import {
   X,
   DollarSign,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Skeleton } from "../components/ui/skeleton";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { Skeleton } from "../../components/ui/skeleton";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../components/ui/popover";
-import { Slider } from "../components/ui/slider";
-import { restaurants } from "../data/restaurant"; // Using the correct import path
-import { AuthContext } from "../App";
+} from "../../components/ui/popover";
+import { Slider } from "../../components/ui/slider";
+import { restaurants } from "../../data/restaurant"; // Using the correct import path
+import { AuthContext } from "../../App";
 
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");

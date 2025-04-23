@@ -13,14 +13,14 @@ import {
   Share2,
   BookmarkPlus,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { Button } from "../../components/ui/button";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../components/ui/tabs";
-import { restaurants } from "../data/restaurant";
+} from "../../components/ui/tabs";
+import { restaurants } from "../../data/restaurant";
 import { Link } from "react-router-dom";
 
 function RestaurantPage() {
