@@ -27,7 +27,7 @@ import {
 } from "../../components/ui/popover";
 import { Slider } from "../../components/ui/slider";
 import { restaurants } from "../../data/restaurant"; // Using the correct import path
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../layout/RestaurantFinderLayout";
 
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");

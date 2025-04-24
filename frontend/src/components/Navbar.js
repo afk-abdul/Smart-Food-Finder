@@ -7,20 +7,20 @@ function Navbar({ isAuthenticated }) {
       <ul>
         {isAuthenticated ? (
           <>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/menuitems">MenuItems</Link></li>
-            <li><Link to="/createdeal">MakeDeal</Link></li>
-            <li><Link to="/dealview">DealView</Link></li>
-            <li><Link to="/branch">Branches</Link></li>
-            <li><Link to="/viewbranches">ViewBranches</Link></li>
-            <li><Link to="/viewnotifications">ViewNotifications</Link></li>
-            <li><Link to="/branchmap">Map</Link></li>
+            <li><Link to="/owner/">Home</Link></li>
+            <li><Link to="/owner/dashboard">Dashboard</Link></li>
+            <li><Link to="/owner/menuitems">MenuItems</Link></li>
+            <li><Link to="/owner/createdeal">MakeDeal</Link></li>
+            <li><Link to="/owner/dealview">DealView</Link></li>
+            <li><Link to="/owner/branch">Branches</Link></li>
+            <li><Link to="/owner/viewbranches">ViewBranches</Link></li>
+            <li><Link to="/owner/viewnotifications">ViewNotifications</Link></li>
+            <li><Link to="/owner/branchmap">Map</Link></li>
           </>
         ) : (
           <>
-            <li><Link to="/login">Restaurant Login</Link></li>
-            <li><Link to="/RestaurantSignup">Restaurant Signup</Link></li>
+            <li><Link to="/owner/login">Restaurant Login</Link></li>
+            <li><Link to="/owner/RestaurantSignup">Restaurant Signup</Link></li>
           </>
         )}
       </ul>

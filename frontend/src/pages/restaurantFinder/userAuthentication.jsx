@@ -61,12 +61,10 @@ const AuthPage = ({ onAuthSuccess }) => {
 
       if (response.ok) {
         if (data.access) {
-          localStorage.setItem("accessToken", data.access);
-          localStorage.setItem("access_token", data.access);
+          localStorage.setItem("RestaurantFinder_access_token", data.access);
         }
         if (data.refresh) {
-          localStorage.setItem("refreshToken", data.refresh);
-          localStorage.setItem("refresh_token", data.refresh);
+          localStorage.setItem("RestaurantFinder_refresh_token", data.refresh);
         }
 
         if (onAuthSuccess) {

@@ -17,53 +17,43 @@ import MenuItems from "../pages/restaurantOwner/MenuItems";
 import DealsView from "../pages/restaurantOwner/DealView";
 import Branch from "../pages/restaurantOwner/Branch";
 import Navbar from "../components/Navbar";
+import PrivateRoute from "../components/PrivateRoute";
+import CreateDeal from "../pages/restaurantOwner/Deal";
+
 function RestauntOwnerLayout() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("access_token") ||
-      localStorage.getItem("accessToken");
+    const token = localStorage.getItem("access_token");
     setIsAuthenticated(!!token);
   }, []);
 
-  const handleAuthentication = () => {
-    setIsAuthenticated(true);
-  };
-
   return (
-    <Router>
+    <>
       <Navbar isAuthenticated={isAuthenticated} />
       <Routes>
         {isAuthenticated ? (
           <>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/dashboard"
-              element={<Dashboard setIsAuthenticated={setIsAuthenticated} />}
-            />
-            <Route path="/menuitems" element={<MenuItems />} />
-            <Route path="/dealview" element={<DealsView />} />
-            <Route path="/branch" element={<Branch />} />
-            <Route path="/viewbranches" element={<ViewBranches />} />
-            <Route path="/viewnotifications" element={<ViewNotifications />} />
-            <Route path="/branchmap" element={<BranchMap />} />
-            <Route path="/restaurants" element={<Dashboard />} />
-            <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="menuitems" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
+          <Route path="createdeal" element={<PrivateRoute><CreateDeal /></PrivateRoute>} />
+          <Route path="dealview" element={<PrivateRoute><DealsView /></PrivateRoute>} />
+          <Route path="branch" element={<PrivateRoute><Branch /></PrivateRoute>} />
+          <Route path="viewbranches" element={<PrivateRoute><ViewBranches /></PrivateRoute>} />
+          <Route path="viewnotifications" element={<PrivateRoute><ViewNotifications /></PrivateRoute>} />
+          <Route path="branchmap" element={<PrivateRoute><BranchMap /></PrivateRoute>} />
           </>
         ) : (
           <>
-            <Route
-              path="/login"
-              element={<Login setIsAuthenticated={setIsAuthenticated} />}
-            />
-            <Route path="/RestaurantSignup" element={<RestaurantSignup />} />
-            <Route path="*" element={<Navigate to="/auth" />} />
+            <Route path="login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+            <Route path="RestaurantSignup" element={<RestaurantSignup />} />
           </>
         )}
       </Routes>
-    </Router>
+      </>
   );
 }
+
 
 export default RestauntOwnerLayout;
