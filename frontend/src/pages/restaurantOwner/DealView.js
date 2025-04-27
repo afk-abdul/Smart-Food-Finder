@@ -1,6 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 import { Link } from 'react-router-dom';
+import
+{
+    ShoppingBag,
+    Search,
+    Filter,
+    Plus,
+    Calendar,
+    Tag,
+    CheckCircle,
+    XCircle,
+    ChevronDown,
+    Edit,
+    Trash2,
+    Eye,
+} from "lucide-react"
 
 function DealsView()
 {
@@ -70,6 +85,23 @@ function DealsView()
         if (!dateStr) return ""; // Handle empty values
         return `${dateStr}T00:00`; // Append time if missing
     };
+    // Format date
+    const formatDate = (dateString) =>
+    {
+        const options = { day: "2-digit", month: "short", year: "numeric" }
+        return new Date(dateString).toLocaleDateString("en-US", options)
+    }
+
+    // Format currency
+    const formatCurrency = (amount) =>
+    {
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "PKR",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount)
+    }
 
 
 
@@ -85,7 +117,90 @@ function DealsView()
 
                 {loading && (<p>Loading...</p>)}
 
-                <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {deals.map((deal) => (
+                        <div
+                            key={deal.id}
+                            className="bg-white border rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                        >
+                            <div className="relative h-48">
+                                <img
+                                    src={`data:image/png;base64,${deal.image}` || "/placeholder.svg"}
+                                    alt={deal.description}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/50 to-transparent"></div>
+                                <div className="absolute top-2 right-2">
+                                    {deal.is_valid ? (
+                                        <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded flex items-center">
+                                            <CheckCircle className="w-3 h-3 mr-1" />
+                                            ACTIVE
+                                        </span>
+                                    ) : (
+                                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded flex items-center">
+                                            <XCircle className="w-3 h-3 mr-1" />
+                                            INACTIVE
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="p-4">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="font-bold text-lg">Deal #{deal.id}</h3>
+                                    <span className="font-bold text-[#F97316]">{formatCurrency(deal.total_price)}</span>
+                                </div>
+
+                                <p className="text-gray-600 mb-4">{deal.description}</p>
+
+                                <div className="space-y-2 mb-4">
+                                    <div className="flex items-center text-sm text-gray-500">
+                                        <Calendar className="w-4 h-4 mr-2" />
+                                        Valid until: {formatDate(deal.dateTime)}
+                                    </div>
+                                    <div className="flex items-start text-sm text-gray-500">
+                                        <Tag className="w-4 h-4 mr-2 mt-1 flex-shrink-0" />
+                                        <div>
+                                            {deal.items.map((item, index) => (
+                                                <span key={item.id}>
+                                                    {item.item_name} (x{item.quantity}){index < deal.items.length - 1 ? ", " : ""}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center pt-3 border-t">
+                                    <button
+                                        onClick={() => toggleValidity(deal)}
+                                        className={`text-sm px-3 py-1 rounded ${deal.is_valid
+                                            ? "bg-red-100 text-red-600 hover:bg-red-200"
+                                            : "bg-green-100 text-green-600 hover:bg-green-200"
+                                            }`}
+                                    >
+                                        {deal.is_valid ? "Dectivate" : "Activate"}
+                                    </button>
+                                    <div className="flex space-x-2">
+
+                                        <button className="p-1.5 bg-amber-50 text-amber-600 rounded hover:bg-amber-100">
+                                            <Edit className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100"
+                                        // onClick={() => handleDeleteDeal(deal.id)}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+
+                {/* <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
                     {deals.map((deal) => (
                         <div
                             key={deal.id}
@@ -115,7 +230,6 @@ function DealsView()
                                 {deal.is_valid ? "Invalidate" : "Validate"}
                             </button>
 
-                            {/* Display Menu Items in Deal */}
                             <p><strong>Items:</strong></p>
                             <ul>
                                 {deal.items.map((item, index) => (
@@ -126,7 +240,7 @@ function DealsView()
                             </ul>
                         </div>
                     ))}
-                </div>
+                </div> */}
             </div>
         </main>
     );
