@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import axiosInstance from "../../utils/axiosInstance";
 import L from "leaflet";
+import { Search, Plus, Edit, Trash2, Filter, Camera, LogOut, User } from "lucide-react"
 
 // Fix Leaflet marker issue
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -63,8 +64,8 @@ const ViewBranches = () =>
                 ) : (
                     <>
                         <MapContainer
-                            center={[24.8607, 67.0011]} // Default to Karachi, Pakistan
-                            zoom={10}
+                            center={[31, 70]} // Default to Karachi, Pakistan
+                            zoom={5}
                             style={{ height: "400px", width: "100%" }}
                         >
                             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -79,21 +80,38 @@ const ViewBranches = () =>
                                         <br />
                                         {branch.city}, {branch.country}
                                         <br />
-                                        <button onClick={() => handleDelete(branch.id)}>Delete</button>
                                     </Popup>
                                 </Marker>
                             ))}
                         </MapContainer>
 
-                        <h3>Branch List</h3>
-                        <ul>
-                            {branches.map((branch) => (
-                                <li key={branch.id}>
-                                    <strong>{branch.location}</strong> ({branch.city}, {branch.country})
-                                    <button onClick={() => handleDelete(branch.id)}>Delete</button>
-                                </li>
+                        <div className="flex justify-between items-center my-2">
+                            <h1 className="text-2xl font-bold">Branch List</h1>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-2 mb-8">
+                            {branches.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                    <div className="p-4">
+                                        <div className="flex justify-between items-start">
+                                            <h3 className="font-bold text-lg">{item.location}</h3>
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <p className="text-gray-600 text-sm line-clamp-2">{item.city}, {item.country}</p>
+
+                                            <div className="flex space-x-2">
+                                                <button className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100" onClick={() => handleDelete(item.id)}>
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </>
                 )}
             </div>

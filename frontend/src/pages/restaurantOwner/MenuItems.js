@@ -200,7 +200,7 @@ function MenuItems()
                                 </div>
                                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>
                                 <div className="flex justify-between items-center">
-                                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{item.category}</span>
+                                    <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{categories.find(c => c.id == item.category)?.name}</span>
                                     <div className="flex space-x-2">
                                         <button className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
                                             <Edit className="w-4 h-4" />
@@ -303,10 +303,9 @@ function MenuItems()
                 </form>
             </div>
 
-            <div style={{ textAlign: "center", marginTop: "20px" }}>
+            {/* <div style={{ textAlign: "center", marginTop: "20px" }}>
                 <h2>Menu Items</h2>
 
-                {/* Display Menu Items by Category */}
                 {categories.map((category) => (
                     <div key={category.id}>
                         <h3>{category.name}</h3>
@@ -354,7 +353,6 @@ function MenuItems()
                     </div>
                 ))}
 
-                {/* Add New Menu Item */}
                 <div style={{ marginTop: "20px" }}>
                     <h3>Add New Item</h3>
                     <input
@@ -392,7 +390,7 @@ function MenuItems()
 
                     <button onClick={handleAdd}>Add Item</button>
                 </div>
-            </div>
+            </div> */}
         </main>
     );
 }

@@ -185,12 +185,15 @@ function RestauntOwnerLayout()
                             <Route path="viewbranches" element={<PrivateRoute><ViewBranches /></PrivateRoute>} />
                             <Route path="viewnotifications" element={<PrivateRoute><ViewNotifications /></PrivateRoute>} />
                             <Route path="branchmap" element={<PrivateRoute><BranchMap /></PrivateRoute>} />
+                            <Route path="branchmap" element={<PrivateRoute><BranchMap /></PrivateRoute>} />
                         </Routes>
                     </div>
                 </div>
+
             ) : (
                 <Routes>
-                    <Route path="/*" element={<AuthPage></AuthPage>} />
+                    <Route path="/" element={<Navigate to="login" replace />} />
+                    <Route path="login" element={<AuthPage />} />
                 </Routes>
             )}
         </AuthContext.Provider>
