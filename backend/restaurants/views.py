@@ -74,6 +74,8 @@ class MenuItemListCreateView(generics.ListCreateAPIView):
     serializer_class=MenuItemSerializer
     permission_classes=[IsAuthenticated]
     def get_queryset(self):
+        print(self.request.user)
+        print(type(self.request.user))
         restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
         if restaurant:
             return MenuItem.objects.filter(restaurant=restaurant)
