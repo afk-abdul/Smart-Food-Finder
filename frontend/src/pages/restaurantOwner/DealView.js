@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosInstance";
+import { Link } from 'react-router-dom';
 
 function DealsView()
 {
@@ -69,6 +70,9 @@ function DealsView()
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold">Deals</h1>
+                    <Link to="/owner/create-deal" className="px-4 py-2 bg-[#F97316] text-white rounded-md hover:bg-[#EA580C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F97316]">
+                        New Deal
+                    </Link>
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>

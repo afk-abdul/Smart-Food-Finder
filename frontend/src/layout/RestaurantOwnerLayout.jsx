@@ -28,12 +28,12 @@ import { Link } from 'react-router-dom';
 import Login from "../pages/restaurantOwner/Login";
 import RestaurantSignup from "../pages/restaurantOwner/restaurantsignup";
 import BranchMap from "../pages/restaurantOwner/Map";
-import ViewBranches from "../pages/restaurantOwner/ViewBranch";
+import BranchForm from "../pages/restaurantOwner/Branches/AddBranch";
+import Branches from "../pages/restaurantOwner/Branches/Branches";
 import ViewNotifications from "../pages/restaurantOwner/notification";
 import Home from "../pages/restaurantOwner/home";
 import MenuItems from "../pages/restaurantOwner/MenuItems";
 import DealsView from "../pages/restaurantOwner/DealView";
-import Branch from "../pages/restaurantOwner/Branch";
 import Navbar from "../components/Navbar";
 import PrivateRoute from "../components/PrivateRoute";
 import CreateDeal from "../pages/restaurantOwner/MakeDeal";
@@ -143,34 +143,21 @@ function RestauntOwnerLayout()
                                             Menu Items
                                         </Link>
                                     </li>
+
                                     <li>
-                                        <Link to="/owner/createdeal" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
-                                            Make Deal
+                                        <Link to="/owner/deals" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
+                                            Deals
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/owner/dealview" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
-                                            Deal View
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/owner/branch" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
+                                        <Link to="/owner/branches" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
                                             Branches
                                         </Link>
                                     </li>
-                                    <li>
-                                        <Link to="/owner/viewbranches" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
-                                            View Branches
-                                        </Link>
-                                    </li>
+
                                     <li>
                                         <Link to="/owner/viewnotifications" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
-                                            View Notifications
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/owner/branchmap" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
-                                            Map
+                                            Notifications
                                         </Link>
                                     </li>
                                 </ul>
@@ -179,10 +166,10 @@ function RestauntOwnerLayout()
                         <Routes>
                             <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
                             <Route path="menuitems" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
-                            <Route path="createdeal" element={<PrivateRoute><CreateDeal /></PrivateRoute>} />
-                            <Route path="dealview" element={<PrivateRoute><DealsView /></PrivateRoute>} />
-                            <Route path="branch" element={<PrivateRoute><Branch /></PrivateRoute>} />
-                            <Route path="viewbranches" element={<PrivateRoute><ViewBranches /></PrivateRoute>} />
+                            <Route path="deals" element={<PrivateRoute><DealsView /></PrivateRoute>} />
+                            <Route path="create-deal" element={<PrivateRoute><CreateDeal /></PrivateRoute>} />
+                            <Route path="branches" element={<PrivateRoute><Branches /></PrivateRoute>} />
+                            <Route path="create-branch" element={<PrivateRoute><BranchForm /></PrivateRoute>} />
                             <Route path="viewnotifications" element={<PrivateRoute><ViewNotifications /></PrivateRoute>} />
                             <Route path="branchmap" element={<PrivateRoute><BranchMap /></PrivateRoute>} />
                             <Route path="branchmap" element={<PrivateRoute><BranchMap /></PrivateRoute>} />

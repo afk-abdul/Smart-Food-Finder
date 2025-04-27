@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosInstance from "../../../utils/axiosInstance";
 import L from "leaflet";
 import { Search, Plus, Edit, Trash2, Filter, Camera, LogOut, User } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 // Fix Leaflet marker issue
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { Navigate } from "react-router-dom";
 
 const customIcon = new L.Icon({
     iconUrl: markerIcon,
@@ -53,11 +55,23 @@ const ViewBranches = () =>
         }
     };
 
+    const navigate = useNavigate();
+
+
     return (
         <main className="flex-1 p-6">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold">View Branches</h1>
+                    <button
+                        onClick={() =>
+                        {
+                            navigate("/owner/create-branch")
+                        }}
+                        className="px-4 py-2 bg-[#F97316] text-white rounded-md hover:bg-[#EA580C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F97316]"
+                    >
+                        New Branch
+                    </button>
                 </div>
                 {loading ? (
                     <p>Loading branches...</p>
