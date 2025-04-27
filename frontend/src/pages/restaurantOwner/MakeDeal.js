@@ -7,6 +7,7 @@ function CreateDeal()
     const [categories, setCategories] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
     const [deal, setDeal] = useState({ description: "", total_price: "", date: "", image: null });
+    const [loading, setLoading] = useState(true)
 
     // Fetch Menu Items & Categories
     useEffect(() =>
@@ -22,6 +23,10 @@ function CreateDeal()
             } catch (error)
             {
                 console.error("Error fetching data:", error);
+            }
+            finally
+            {
+                setLoading(false);
             }
         };
         fetchData();
@@ -145,6 +150,9 @@ function CreateDeal()
                         </div>
                     </div>
                 ))}
+
+                {loading && (<p>Loading...</p>)}
+
 
                 {/* Deal Form */}
                 <div style={{ marginTop: "20px" }}>

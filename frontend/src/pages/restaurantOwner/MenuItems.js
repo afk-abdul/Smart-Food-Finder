@@ -15,6 +15,8 @@ function MenuItems()
     const [selectedItemId, setSelectedItemId] = useState(null);
     const [updating, setUpdating] = useState(false);
 
+    const [loading, setLoading] = useState(true)
+
     const fetchMenuItems = async () =>
     {
         try
@@ -43,8 +45,12 @@ function MenuItems()
     // Fetch Menu Items & Categories
     useEffect(() =>
     {
-        fetchMenuItems();
-        fetchCategories();
+        (async () =>
+        {
+            await fetchMenuItems();
+            await fetchCategories();
+            setLoading(false);
+        })();
     }, []);
 
     // Save updated item to backend
@@ -307,7 +313,7 @@ function MenuItems()
                         </div>
                     </div>
 
-                    {(menuItems.length === 0 || categories.length === 0) && (<p>Loading...</p>)}
+                    {loading && (<p>Loading...</p>)}
 
                     {/* Menu Items Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 function DealsView()
 {
     const [deals, setDeals] = useState([]);
+    const [loading, setLoading] = useState(true)
+
 
     // Fetch Deals
     useEffect(() =>
@@ -19,6 +21,10 @@ function DealsView()
             } catch (error)
             {
                 console.error("Error fetching deals:", error);
+            }
+            finally
+            {
+                setLoading(false);
             }
         };
 
@@ -65,6 +71,8 @@ function DealsView()
         return `${dateStr}T00:00`; // Append time if missing
     };
 
+
+
     return (
         <main className="flex-1 p-6">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -74,6 +82,8 @@ function DealsView()
                         New Deal
                     </Link>
                 </div>
+
+                {loading && (<p>Loading...</p>)}
 
                 <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
                     {deals.map((deal) => (
