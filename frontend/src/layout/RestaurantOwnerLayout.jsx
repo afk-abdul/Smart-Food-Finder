@@ -192,8 +192,8 @@ function RestauntOwnerLayout()
 
             ) : (
                 <Routes>
-                    <Route path="/" element={<Navigate to="login" replace />} />
-                    <Route path="login" element={<AuthPage />} />
+                    <Route path="*" element={<Navigate to="login" replace />} />
+                    <Route path="login" element={<AuthPage onAuthSuccess={handleAuthentication} />} />
                 </Routes>
             )}
         </AuthContext.Provider>
