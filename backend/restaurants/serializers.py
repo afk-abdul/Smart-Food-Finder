@@ -96,15 +96,13 @@ class DealItemSerializer(serializers.ModelSerializer):
         model = DealItem
         fields = ["item","item_name","quantity"]
 
-
-
 class DealSerializer(serializers.ModelSerializer):
     items = DealItemSerializer(many=True)
     image = serializers.SerializerMethodField()
     image_upload = serializers.CharField(write_only=True, required=False)
     class Meta:
         model = Deal
-        fields = ["id","total_price","description","dateTime","image","is_valid", "items"]
+        fields = '__all__'
         extra_kwargs = {"id": {"read_only": True}, "restaurant": {"read_only": True}}
 
     def get_image(self, obj):
@@ -156,8 +154,8 @@ class DealSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop("items")  # List of MenuItem IDs
-        deal = Deal.objects.create(**validated_data)
         image_data = validated_data.pop("image_upload", None)
+        deal = Deal.objects.create(**validated_data)
         if image_data:
             validated_data["image"] = base64.b64decode(image_data)
         # Create DealItem entries for each MenuItem ID

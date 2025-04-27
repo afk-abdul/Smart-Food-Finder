@@ -36,7 +36,7 @@ import DealsView from "../pages/restaurantOwner/DealView";
 import Branch from "../pages/restaurantOwner/Branch";
 import Navbar from "../components/Navbar";
 import PrivateRoute from "../components/PrivateRoute";
-import CreateDeal from "../pages/restaurantOwner/Deal";
+import CreateDeal from "../pages/restaurantOwner/MakeDeal";
 import AuthPage from "../pages/restaurantOwner/Auth";
 
 export const AuthContext = createContext(null);

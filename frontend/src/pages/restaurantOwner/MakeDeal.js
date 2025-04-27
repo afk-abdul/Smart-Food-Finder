@@ -6,7 +6,7 @@ function CreateDeal()
     const [menuItems, setMenuItems] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
-    const [deal, setDeal] = useState({ description: "", total_price: "", date: "" });
+    const [deal, setDeal] = useState({ description: "", total_price: "", date: "", image: null });
 
     // Fetch Menu Items & Categories
     useEffect(() =>
@@ -68,6 +68,7 @@ function CreateDeal()
                 description: deal.description,
                 total_price: deal.total_price,
                 dateTime: deal.date,
+                image_upload: deal.image_upload,
                 items: selectedItems.map((item) => ({ item: item.id, quantity: item.quantity })),
             });
             alert("Deal created successfully!");
@@ -76,6 +77,27 @@ function CreateDeal()
         } catch (error)
         {
             console.error("Error creating deal:", error);
+        }
+    };
+
+    const handleFileChange = (e) =>
+    {
+        const file = e.target.files[0] || null;
+
+        if (file)
+        {
+            const reader = new FileReader();
+
+            reader.onloadend = () =>
+            {
+                const base64String = reader.result.split(",")[1]; // remove data:image/... prefix
+                setDeal((prevItem) => ({
+                    ...prevItem,
+                    image_upload: base64String,
+                }));
+            };
+
+            reader.readAsDataURL(file); // convert file to base64
         }
     };
 
@@ -144,6 +166,12 @@ function CreateDeal()
                         value={deal.date}
                         onChange={(e) => setDeal({ ...deal, date: e.target.value })}
                     />
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
+                        <input type="file"
+                            accept="image/*"
+                            onChange={handleFileChange} />
+                    </div>
                     <button onClick={handleSubmit}>Create Deal</button>
                 </div>
             </div>
