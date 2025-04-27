@@ -130,7 +130,7 @@ function RestauntOwnerLayout()
                     {/* Sidebar and Main Content */}
                     <div className="flex max-w-7xl mx-auto">
                         {/* Sidebar */}
-                        <aside className="w-64 bg-white shadow-sm p-6 h-[calc(100vh-72px)] sticky top-[72px]">
+                        <aside className="w-64 bg-white shadow-sm p-6 h-[calc(100vh)] sticky top-0">
                             <nav>
                                 <ul className="space-y-2">
                                     <li>
