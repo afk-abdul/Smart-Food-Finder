@@ -26,7 +26,6 @@ import
 import { Link } from 'react-router-dom';
 
 import Login from "../pages/restaurantOwner/Login";
-import Dashboard from "../pages/restaurantOwner/Dashboard";
 import RestaurantSignup from "../pages/restaurantOwner/restaurantsignup";
 import BranchMap from "../pages/restaurantOwner/Map";
 import ViewBranches from "../pages/restaurantOwner/ViewBranch";
@@ -140,11 +139,6 @@ function RestauntOwnerLayout()
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/owner/dashboard" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700">
-                                            Dashboard
-                                        </Link>
-                                    </li>
-                                    <li>
                                         <Link to="/owner/menuitems" className="block py-2 px-4 rounded hover:bg-[#FFF8EE] text-gray-700 ">
                                             Menu Items
                                         </Link>
@@ -184,7 +178,6 @@ function RestauntOwnerLayout()
                         </aside>
                         <Routes>
                             <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-                            <Route path="dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                             <Route path="menuitems" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
                             <Route path="createdeal" element={<PrivateRoute><CreateDeal /></PrivateRoute>} />
                             <Route path="dealview" element={<PrivateRoute><DealsView /></PrivateRoute>} />
