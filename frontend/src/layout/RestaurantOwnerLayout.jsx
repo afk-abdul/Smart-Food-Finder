@@ -33,10 +33,10 @@ import Branches from "../pages/restaurantOwner/Branches/Branches";
 import ViewNotifications from "../pages/restaurantOwner/notification";
 import Home from "../pages/restaurantOwner/home";
 import MenuItems from "../pages/restaurantOwner/MenuItems";
-import DealsView from "../pages/restaurantOwner/DealView";
+import DealsView from "../pages/restaurantOwner/Deals";
+import CreateDeal from "../pages/restaurantOwner/Deals/CreateDeal";
 import Navbar from "../components/Navbar";
 import PrivateRoute from "../components/PrivateRoute";
-import CreateDeal from "../pages/restaurantOwner/MakeDeal";
 import AuthPage from "../pages/restaurantOwner/Auth";
 
 export const AuthContext = createContext(null);
@@ -167,7 +167,7 @@ function RestauntOwnerLayout()
                             <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
                             <Route path="menuitems" element={<PrivateRoute><MenuItems /></PrivateRoute>} />
                             <Route path="deals" element={<PrivateRoute><DealsView /></PrivateRoute>} />
-                            <Route path="create-deal" element={<PrivateRoute><CreateDeal /></PrivateRoute>} />
+                            <Route path="create-deal/:dealId?" element={<PrivateRoute><CreateDeal /></PrivateRoute>} />
                             <Route path="branches" element={<PrivateRoute><Branches /></PrivateRoute>} />
                             <Route path="create-branch" element={<PrivateRoute><BranchForm /></PrivateRoute>} />
                             <Route path="viewnotifications" element={<PrivateRoute><ViewNotifications /></PrivateRoute>} />

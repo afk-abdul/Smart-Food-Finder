@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosInstance from "../../../utils/axiosInstance";
 import { ShoppingBag, Plus, Minus, Trash2, Search, Calendar, ImageIcon, FileText, Check, X } from "lucide-react";
-
+import { useParams } from "react-router";
 function CreateDeal()
 {
+    let { dealId } = useParams();
+
     const [menuItems, setMenuItems] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
-    const [deal, setDeal] = useState({ description: "", total_price: "", date: "", image: null });
+    const [deal, setDeal] = useState({ description: "", total_price: "", dateTime: "", image: null });
     const [loading, setLoading] = useState(true)
 
     const [selectedCategory, setSelectedCategory] = useState(0)
@@ -23,6 +25,31 @@ function CreateDeal()
                 const categoriesResponse = await axiosInstance.get("/menuCategory/");
                 setMenuItems(itemsResponse.data);
                 setCategories(categoriesResponse.data);
+                console.log("Menu Items:", itemsResponse.data);
+
+                if (dealId)
+                {
+                    const dealResponse = await axiosInstance.get(`/create-deal/`);
+                    console.log(dealResponse.data);
+                    const dealData = dealResponse.data.find(d => d.id == dealId);
+                    if (dealData)
+                    {
+                        setDeal(dealData);
+                        let dealItemIds = dealData.items.map((item) => item.item)
+                        let selectedItems = itemsResponse.data.filter(i => dealItemIds.includes(i.id)).map((item) =>
+                        {
+                            const selectedItem = dealData.items.find((i) => i.item === item.id);
+                            return {
+                                ...item,
+                                quantity: selectedItem ? selectedItem.quantity : 1, // Set quantity to 1 if not found
+                            };
+                        });
+                        console.log("Selected Items:", selectedItems)
+                        setSelectedItems(selectedItems)
+                    }
+                }
+
+
             } catch (error)
             {
                 console.error("Error fetching data:", error);
@@ -56,27 +83,50 @@ function CreateDeal()
     const handleSubmit = async () =>
     {
         console.log("Submitting deal:", deal, selectedItems);
-        if (!deal.description || !deal.date || selectedItems.length === 0)
+        if (!deal.description || !deal.dateTime || selectedItems.length === 0)
         {
             alert("Please fill all fields and select at least one item.");
             return;
         }
 
-        try
+        if (dealId)
         {
-            await axiosInstance.post("/create-deal/", {
-                description: deal.description,
-                total_price: totalPrice,
-                dateTime: deal.date,
-                image_upload: deal.image_upload,
-                items: selectedItems.map((item) => ({ item: item.id, quantity: item.quantity })),
-            });
-            alert("Deal created successfully!");
-            setDeal({ description: "", total_price: "", date: "" });
-            setSelectedItems([]);
-        } catch (error)
+            try
+            {
+                await axiosInstance.put(`/update-deal/${dealId}/`, {
+                    description: deal.description,
+                    total_price: totalPrice,
+                    dateTime: deal.dateTime,
+                    image_upload: deal.image_upload,
+                    items: selectedItems.map((item) => ({ item: item.id, quantity: item.quantity })),
+                });
+                alert("Deal updated successfully!");
+                setDeal({ description: "", total_price: "", dateTime: "" });
+                setSelectedItems([]);
+            } catch (error)
+            {
+                console.error("Error updating deal:", error);
+            }
+        }
+        else
         {
-            console.error("Error creating deal:", error);
+            try
+            {
+                await axiosInstance.post("/create-deal/", {
+                    description: deal.description,
+                    total_price: totalPrice,
+                    dateTime: deal.dateTime,
+                    image: deal.image_upload,
+                    image_upload: deal.image_upload,
+                    items: selectedItems.map((item) => ({ item: item.id, quantity: item.quantity })),
+                });
+                alert("Deal created successfully!");
+                setDeal({ description: "", total_price: "", dateTime: "" });
+                setSelectedItems([]);
+            } catch (error)
+            {
+                console.error("Error creating deal:", error);
+            }
         }
     };
 
@@ -140,7 +190,7 @@ function CreateDeal()
                     <div className="lg:col-span-3">
                         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                                <h2 className="text-xl font-bold">Create Deal</h2>
+                                <h2 className="text-xl font-bold">{dealId ? "Update" : "Create"} Deal</h2>
 
                                 <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                                     {/* Search */}
@@ -154,8 +204,14 @@ function CreateDeal()
                                         />
                                         <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
                                     </div> */}
+                                    {loading && (
+                                        <p className="text-gray-500">Loading...</p>
+                                    )}
                                 </div>
+
                             </div>
+
+
 
                             {/* Category Tabs */}
                             <div className="mb-6 overflow-x-auto">
@@ -215,11 +271,7 @@ function CreateDeal()
                                     </div>
                                 ))}
 
-                                {loading && (
-                                    <div className="col-span-full text-center py-10">
-                                        <p className="text-gray-500">Loading...</p>
-                                    </div>
-                                )}
+
 
                                 {!loading && menuItems.filter(i => (i.category === selectedCategory || selectedCategory === 0)).length === 0 && (
                                     <div className="col-span-full text-center py-10">
@@ -314,8 +366,8 @@ function CreateDeal()
                                         </label>
                                         <input
                                             type="date"
-                                            value={deal.date}
-                                            onChange={(e) => setDeal({ ...deal, date: e.target.value })}
+                                            value={deal.dateTime}
+                                            onChange={(e) => setDeal({ ...deal, dateTime: e.target.value })}
                                             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#F97316] focus:border-transparent"
                                         />
                                     </div>
@@ -325,6 +377,17 @@ function CreateDeal()
                                             <ImageIcon className="inline-block w-4 h-4 mr-1" />
                                             Deal Image
                                         </label>
+
+                                        {deal.image && (
+                                            <div className="mb-2">
+                                                <img
+                                                    src={`data:image/png;base64,${deal.image}`}
+                                                    alt="Deal"
+                                                    className="w-32 h-32 object-cover rounded-md mb-2"
+                                                />
+                                            </div>
+                                        )}
+
                                         <div>
                                             <input type="file"
                                                 accept="image/*"
@@ -355,7 +418,7 @@ function CreateDeal()
                                         }`}
                                     onClick={handleSubmit}
                                 >
-                                    Create Deal
+                                    {dealId ? "Update" : "Create"} Deal
                                 </button>
                             </div>
                         </div>

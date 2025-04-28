@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosInstance from "../../../utils/axiosInstance";
 import { Link } from 'react-router-dom';
 import
 {
@@ -146,12 +146,12 @@ function DealsView()
                             </div>
 
                             <div className="p-4">
-                                <div className="flex justify-between items-start mb-2">
+                                <div className="flex justify-between items-start">
                                     <h3 className="font-bold text-lg">Deal #{deal.id}</h3>
                                     <span className="font-bold text-[#F97316]">{formatCurrency(deal.total_price)}</span>
                                 </div>
 
-                                <p className="text-gray-600 mb-4">{deal.description}</p>
+                                <p className="text-gray-600 mb-2">{deal.description}</p>
 
                                 <div className="space-y-2 mb-4">
                                     <div className="flex items-center text-sm text-gray-500">
@@ -182,9 +182,10 @@ function DealsView()
                                     </button>
                                     <div className="flex space-x-2">
 
-                                        <button className="p-1.5 bg-amber-50 text-amber-600 rounded hover:bg-amber-100">
+                                        <Link to={`/owner/create-deal/${deal.id}`} className="p-1.5 bg-amber-50 text-amber-600 rounded hover:bg-amber-100">
                                             <Edit className="w-4 h-4" />
-                                        </button>
+                                        </Link>
+
                                         <button
                                             className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100"
                                         // onClick={() => handleDeleteDeal(deal.id)}
