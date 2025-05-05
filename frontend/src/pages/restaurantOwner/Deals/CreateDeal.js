@@ -116,7 +116,6 @@ function CreateDeal()
                     description: deal.description,
                     total_price: totalPrice,
                     dateTime: deal.dateTime,
-                    image: deal.image_upload,
                     image_upload: deal.image_upload,
                     items: selectedItems.map((item) => ({ item: item.id, quantity: item.quantity })),
                 });

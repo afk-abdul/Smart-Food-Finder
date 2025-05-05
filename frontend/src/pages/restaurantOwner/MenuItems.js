@@ -67,7 +67,7 @@ function MenuItems()
 
             if (updatedItem.image instanceof File)
             {
-                formData.append("image", updatedItem.image);
+                formData.append("image_upload", updatedItem.image);
             }
 
             await axiosInstance.put(`/menu-items/${id}/`, formData, {
