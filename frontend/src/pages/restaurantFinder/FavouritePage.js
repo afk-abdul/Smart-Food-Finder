@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { Trash2, StarIcon } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 
 function FavoritesPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
+  const [restaurants, setRestaurants] = useState({});
 
   // Authentication helper functions
   const getAuthToken = () =>
@@ -100,18 +102,43 @@ function FavoritesPage() {
     }
   };
 
+  // Fetch all restaurants to get complete data
+  const fetchRestaurants = async () => {
+    const data = await fetchWithAuth(
+      "http://127.0.0.1:8000/users/restaurant/",
+      null
+    );
+
+    if (data) {
+      // Convert array to object with id as key for easier lookup
+      const restaurantsById = {};
+      data.forEach((restaurant) => {
+        restaurantsById[restaurant.id] = restaurant;
+      });
+      setRestaurants(restaurantsById);
+    }
+  };
+
   useEffect(() => {
-    const loadFavorites = async () => {
+    const loadData = async () => {
       setLoading(true);
+      // Fetch favorites
       await fetchWithAuth(
         "http://127.0.0.1:8000/users/restaurant/favourites/",
         setFavorites
       );
+
+      // Fetch all restaurants to get complete restaurant data
+      await fetchRestaurants();
+
       setLoading(false);
     };
 
-    loadFavorites();
-  }, []);
+    loadData();
+
+    // Save the current path to session storage
+    sessionStorage.setItem("lastVisitedPage", location.pathname);
+  }, [location.pathname]);
 
   const handleRemoveFavorite = async (restaurantId) => {
     try {
@@ -142,10 +169,19 @@ function FavoritesPage() {
 
   const navigateToRestaurant = (restaurantId) => {
     if (restaurantId) {
-      navigate(`/restaurants/${restaurantId}`);
+      // Store the current page before navigating
+      sessionStorage.setItem("lastVisitedPage", location.pathname);
+      navigate(`/restaurants/${restaurantId}`, {
+        state: { fromFavorites: true },
+      });
     } else {
       console.error("Cannot navigate to restaurant: ID is undefined");
     }
+  };
+
+  // Function to get complete restaurant data
+  const getRestaurantData = (restaurantId) => {
+    return restaurants[restaurantId] || {};
   };
 
   if (loading) {
@@ -178,10 +214,18 @@ function FavoritesPage() {
                   ? favorite.restaurant.id
                   : favorite.restaurant);
 
-              const restaurant =
-                favorite.restaurant && typeof favorite.restaurant === "object"
+              // Get complete restaurant data
+              const restaurant = getRestaurantData(restaurantId);
+
+              // Fallback to favorite data if restaurant lookup fails
+              const restaurantData = {
+                ...favorite,
+                ...(favorite.restaurant &&
+                typeof favorite.restaurant === "object"
                   ? favorite.restaurant
-                  : favorite;
+                  : {}),
+                ...restaurant,
+              };
 
               // Skip rendering if we don't have a valid restaurant ID
               if (!restaurantId) {
@@ -192,26 +236,21 @@ function FavoritesPage() {
               return (
                 <div
                   key={favorite.id || `fav-${restaurantId}`}
-                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                  onClick={() => navigateToRestaurant(restaurantId)}
                 >
-                  <div className="flex">
-                    <div
-                      className="relative h-24 w-24 flex-shrink-0 cursor-pointer"
-                      onClick={() => navigateToRestaurant(restaurantId)}
-                    >
+                  <div className="flex cursor-pointer">
+                    <div className="relative h-24 w-24 flex-shrink-0">
                       <img
-                        src={restaurant.image || "/api/placeholder/200/200"}
-                        alt={restaurant.name || "Restaurant"}
+                        src={restaurantData.image || "/api/placeholder/200/200"}
+                        alt={restaurantData.name || "Restaurant"}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="p-3 flex-1 flex flex-col">
                       <div className="flex justify-between items-start">
-                        <h3
-                          className="font-medium text-gray-900 cursor-pointer hover:text-orange-500"
-                          onClick={() => navigateToRestaurant(restaurantId)}
-                        >
-                          {restaurant.name || "Restaurant Name"}
+                        <h3 className="font-medium text-gray-900 hover:text-orange-500">
+                          {restaurantData.name || "Restaurant Name"}
                         </h3>
                         <div className="flex items-center">
                           <svg
@@ -222,22 +261,25 @@ function FavoritesPage() {
                             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                           </svg>
                           <span className="ml-1">
-                            {restaurant.rating || "N/A"}
+                            {restaurantData.rating || "N/A"}
                           </span>
                         </div>
                       </div>
                       <p className="text-gray-500 text-sm">
-                        {restaurant.cuisine || "Various Cuisine"}
+                        {restaurantData.cuisine || "Various Cuisine"}
                       </p>
                       <div className="mt-auto flex justify-between items-center pt-2">
                         <p className="text-gray-600 text-xs">
-                          {restaurant.address || "Address not available"}
+                          {restaurantData.address || "Address not available"}
                         </p>
                         <Button
                           variant="ghost"
                           size="sm"
                           className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-1"
-                          onClick={() => handleRemoveFavorite(restaurantId)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent navigation when clicking remove button
+                            handleRemoveFavorite(restaurantId);
+                          }}
                         >
                           <Trash2 className="h-4 w-4" />
                           <span className="sr-only">Remove</span>
