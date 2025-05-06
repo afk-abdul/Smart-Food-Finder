@@ -54,6 +54,9 @@ class MenuItemSerializer(serializers.ModelSerializer):
             except Exception:
                 raise serializers.ValidationError("Invalid image data")
         return super().update(instance, validated_data)
+    
+
+
 
 class BranchSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
@@ -69,14 +72,23 @@ class BranchSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         image_data = validated_data.pop("image_upload", None)
+        print("Updating image_upload (base64):", image_data[:30] + "..." if image_data else "None")
+
         if image_data:
-            validated_data["image"] = base64.b64decode(image_data)
+            try:
+                validated_data["image"] = base64.b64decode(image_data)
+            except Exception as e:
+                print("Image decode error:", e)
+                raise serializers.ValidationError("Invalid image data")
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         image_data = validated_data.pop("image_upload", None)
         if image_data:
-            instance.image = base64.b64decode(image_data)
+            try:
+                instance.image = base64.b64decode(image_data)
+            except Exception:
+                raise serializers.ValidationError("Invalid image data")
         return super().update(instance, validated_data)
 
 class MenuCategorySerializer(serializers.ModelSerializer):
@@ -157,7 +169,8 @@ class DealSerializer(serializers.ModelSerializer):
         image_data = validated_data.pop("image_upload", None)
         deal = Deal.objects.create(**validated_data)
         if image_data:
-            validated_data["image"] = base64.b64decode(image_data)
+            deal.image = base64.b64decode(image_data)
+            deal.save()
         # Create DealItem entries for each MenuItem ID
         for item in items_data:
             print(item)

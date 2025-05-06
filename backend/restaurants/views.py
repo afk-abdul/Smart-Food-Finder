@@ -181,4 +181,14 @@ class DealUpdateView(generics.UpdateAPIView):
             return Deal.objects.filter(restaurant=restaurant)
         return Deal.objects.none()
 
-        
+class DealDeleteView(generics.DeleteAPIView):
+    serializer_class = DealSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        try:
+            restaurant = Restaurant.objects.get(id=self.request.user.id)
+            return Deal.objects.filter(restaurant=restaurant)
+        except Restaurant.DoesNotExist:
+            return Deal.objects.none()
+
