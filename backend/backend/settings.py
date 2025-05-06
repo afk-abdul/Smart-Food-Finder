@@ -11,9 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
-REACT_APP_LOGMEAL_FOOD_API_KEY=config('REACT_APP_LOGMEAL_FOOD_API_KEY')
-REACT_APP_LOGMEAL_FOOD_API_URL=config('REACT_APP_LOGMEAL_FOOD_API_URL')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
