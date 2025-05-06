@@ -2,6 +2,7 @@
 
 import { useState, useContext, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import {
   Camera,
   Search,
@@ -14,96 +15,324 @@ import {
   Utensils,
   ArrowUp,
   X,
-  DollarSign,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Skeleton } from "../../components/ui/skeleton";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../components/ui/popover";
-import { Slider } from "../../components/ui/slider";
-import { restaurants } from "../../data/restaurant"; // Using the correct import path
 import { AuthContext } from "../../layout/RestaurantFinderLayout";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
+  const navigate = useNavigate();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [priceRange, setPriceRange] = useState([1, 3]); // 1=$, 2=$$, 3=$$$
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
-  const { user, handleLogout } = useContext(AuthContext); // idar change karli
+  const { user, handleLogout } = useContext(AuthContext);
 
-  // Generate all possible search suggestions
-  const allSuggestions = [
-    ...new Set([
-      ...restaurants.map((r) => r.name),
-      ...restaurants.map((r) => r.cuisine),
-      ...restaurants.flatMap((r) => r.tags || []),
-    ]),
+  // Added state for API data
+  const [restaurants, setRestaurants] = useState([]);
+
+  // Image search states
+  const [isImageSearchLoading, setIsImageSearchLoading] = useState(false);
+  const [imageSearchError, setImageSearchError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const [branches, setBranches] = useState({});
+  const [menuItems, setMenuItems] = useState({});
+  const [deals, setDeals] = useState({});
+
+  // Auth token management
+  const getAuthToken = () =>
+    localStorage.getItem("RestaurantFinder_access_token");
+  const getRefreshToken = () =>
+    localStorage.getItem("RestaurantFinder_refresh_token");
+
+  const refreshToken = async () => {
+    try {
+      const refresh_token = getRefreshToken();
+      if (!refresh_token) return null;
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/users/get-access-token/",
+        {
+          refresh_token: refresh_token,
+        }
+      );
+
+      const newAccessToken = response.data.access_token;
+      localStorage.setItem("RestaurantFinder_access_token", newAccessToken);
+      return newAccessToken;
+    } catch (error) {
+      console.error("Error refreshing access token:", error);
+      return null;
+    }
+  };
+  const fetchWithAuth = async (url, setStateCallback) => {
+    let token = getAuthToken();
+
+    // Check if token exists before making the request
+    if (!token) {
+      const newToken = await refreshToken();
+      if (!newToken) {
+        console.error("No authentication token available");
+        return;
+      }
+      token = newToken;
+    }
+
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setStateCallback(response.data);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        const newToken = await refreshToken();
+        if (newToken) {
+          try {
+            const retryResponse = await axios.get(url, {
+              headers: {
+                Authorization: `Bearer ${newToken}`,
+              },
+            });
+            setStateCallback(retryResponse.data);
+          } catch (retryError) {
+            console.error("Retry failed:", retryError);
+            // If refresh token is invalid, redirect to login
+            if (retryError.response?.status === 401) {
+              handleLogout();
+              navigate("/auth", { replace: true });
+            }
+          }
+        } else {
+          // Unable to refresh token, user needs to log in again
+          handleLogout();
+          navigate("/auth", { replace: true });
+        }
+      } else {
+        console.error("API error:", error);
+      }
+    }
+  };
+
+  // Search restaurants based on criteria
+  const searchRestaurants = async () => {
+    setLoading(true);
+
+    const params = new URLSearchParams();
+
+    // Combined search query for name, cuisine, or menu item
+    if (searchQuery) {
+      params.append("search", searchQuery);
+    }
+
+    // Cuisine filter - if it's not "all"
+    if (activeFilter !== "all") {
+      params.append("cuisine", activeFilter);
+    }
+
+    try {
+      const url = `http://127.0.0.1:8000/users/restaurants/search/?${params.toString()}`;
+      let token = getAuthToken();
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.length === 0) {
+        // Handle empty results
+        setRestaurants([]);
+      } else {
+        setRestaurants(response.data);
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setRestaurants([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle image search functionality
+  const handleImageSearch = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      setIsImageSearchLoading(true);
+      setImageSearchError(null);
+
+      // Create form data for the API request
+      const formData = new FormData();
+      formData.append("image", file);
+
+      let token = getAuthToken();
+      if (!token) {
+        const newToken = await refreshToken();
+        if (!newToken) {
+          setImageSearchError("Authentication error. Please login again.");
+          setIsImageSearchLoading(false);
+          return;
+        }
+        token = newToken;
+      }
+
+      // Send the image to the backend for food recognition
+      const response = await axios.post(
+        "http://127.0.0.1:8000/users/restaurant/image-search/",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Update restaurants with the response
+      if (response.data && response.data.length > 0) {
+        setRestaurants(response.data);
+      } else {
+        setRestaurants([]);
+        setImageSearchError(
+          "No restaurants found matching the food in your image."
+        );
+      }
+    } catch (err) {
+      console.error("Error during image search:", err);
+      setImageSearchError(
+        err.response?.data?.error ||
+          "Failed to process your image. Please try again."
+      );
+      setRestaurants([]);
+    } finally {
+      setIsImageSearchLoading(false);
+      setLoading(false);
+    }
+  };
+
+  // Handle search button click
+  const handleSearch = () => {
+    searchRestaurants();
+  };
+
+  // Fetch restaurants on component mount
+  useEffect(() => {
+    const loadRestaurants = async () => {
+      await fetchWithAuth(
+        "http://127.0.0.1:8000/users/restaurant/",
+        setRestaurants
+      );
+      setLoading(false);
+    };
+    loadRestaurants();
+  }, []);
+
+  // Handle cuisine filter changes
+  useEffect(() => {
+    // Only trigger search if not the initial load
+    if (!loading) {
+      searchRestaurants();
+    }
+  }, [activeFilter]);
+
+  // Fetch related data for each restaurant
+  const fetchedRestaurantData = useRef(new Set());
+
+  useEffect(() => {
+    restaurants.forEach((restaurant) => {
+      const id = restaurant.id;
+      if (fetchedRestaurantData.current.has(id)) return;
+      fetchedRestaurantData.current.add(id);
+
+      fetchWithAuth(
+        `http://127.0.0.1:8000/users/restaurant/${id}/branches/`,
+        (data) => {
+          setBranches((prev) => ({ ...prev, [id]: data }));
+        }
+      );
+
+      fetchWithAuth(
+        `http://127.0.0.1:8000/users/restaurant/${id}/menu-items/`,
+        (data) => {
+          setMenuItems((prev) => ({ ...prev, [id]: data }));
+        }
+      );
+
+      fetchWithAuth(
+        `http://127.0.0.1:8000/users/restaurant/${id}/deals/`,
+        (data) => {
+          setDeals((prev) => ({ ...prev, [id]: data }));
+        }
+      );
+    });
+  }, [restaurants]);
+
+  // Generate all possible search suggestions from API data
+  const generateSuggestions = () => {
+    const suggestions = new Set();
+
+    restaurants.forEach((r) => {
+      if (r.name) suggestions.add(r.name.toLowerCase());
+      if (r.cuisine_type) suggestions.add(r.cuisine_type.toLowerCase());
+      if (r.tags) {
+        r.tags
+          .split(",")
+          .map((tag) => tag.trim().toLowerCase())
+          .forEach((tag) => {
+            if (tag) suggestions.add(tag);
+          });
+      }
+    });
+
+    return [...suggestions];
+  };
+
+  // Get all suggestions
+  const allSuggestions = generateSuggestions();
+
+  // Filter restaurants based on search and cuisine filter
+  const filteredRestaurants = restaurants;
+
+  // Extract unique cuisine types from API data
+  const cuisineTypes = [
+    "all",
+    ...new Set(
+      restaurants.filter((r) => r.cuisine_type).map((r) => r.cuisine_type)
+    ),
   ];
-
-  // Filter restaurants based on search, cuisine filter, and price range
-  const filteredRestaurants = restaurants.filter((restaurant) => {
-    // Search filter
-    const matchesSearch =
-      searchQuery === "" ||
-      restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (restaurant.tags &&
-        restaurant.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        ));
-
-    // Cuisine filter
-    const matchesFilter =
-      activeFilter === "all" || restaurant.cuisine === activeFilter;
-
-    // Price range filter
-    const priceSymbols = restaurant.priceRange?.length || 1;
-    const matchesPriceRange =
-      priceSymbols >= priceRange[0] && priceSymbols <= priceRange[1];
-
-    return matchesSearch && matchesFilter && matchesPriceRange;
-  });
-
-  const cuisineTypes = ["all", ...new Set(restaurants.map((r) => r.cuisine))];
 
   // Handle scroll to show/hide scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
+      const shouldShow = window.scrollY > 300;
+      setShowScrollTop((prev) => {
+        if (prev !== shouldShow) {
+          return shouldShow;
+        }
+        return prev;
+      });
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Simulate loading state
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   // Handle search suggestions
   useEffect(() => {
-    if (searchQuery.length > 1) {
+    if (searchQuery && searchQuery.length > 1) {
       const filtered = allSuggestions
-        .filter((suggestion) =>
-          suggestion.toLowerCase().includes(searchQuery.toLowerCase())
+        .filter(
+          (suggestion) =>
+            suggestion &&
+            suggestion.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .slice(0, 5);
 
@@ -112,7 +341,13 @@ function HomePage() {
     } else {
       setShowSuggestions(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, allSuggestions]);
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    handleSearch();
+  };
 
   // Handle click outside search suggestions
   useEffect(() => {
@@ -126,17 +361,20 @@ function HomePage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle key press for search input
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+      setShowSuggestions(false);
+    }
+  };
+
   // Scroll to top function
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-  };
-
-  // Format price range for display
-  const formatPriceRange = (range) => {
-    return Array(range).fill("$").join("");
   };
 
   return (
@@ -178,12 +416,21 @@ function HomePage() {
             <div className="flex items-center gap-2">
               <div className="hidden md:flex items-center text-sm text-gray-600 mr-2 bg-white px-3 py-2 rounded-full shadow-sm">
                 <User className="h-4 w-4 mr-1 text-orange-500" />
-                <span>{user?.name || "User"}</span>
+
+                <span
+                  onClick={() => navigate("/favourites")}
+                  style={{ cursor: "pointer" }}
+                >
+                  {user?.name || "Favourites"}
+                </span>
               </div>
               <Button
                 variant="outline"
                 className="rounded-full border-orange-200 hover:bg-orange-100"
-                onClick={handleLogout}
+                onClick={() => {
+                  handleLogout();
+                  navigate("/auth", { replace: true });
+                }}
               >
                 <LogOut className="h-4 w-4 mr-2 text-orange-500" />
                 <span>Logout</span>
@@ -207,10 +454,11 @@ function HomePage() {
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-500" />
                     <Input
-                      placeholder="Search restaurants, cuisines..."
+                      placeholder="Search restaurants, cuisines, menu items..."
                       className="pl-10 border-none rounded-full focus:ring-0"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={handleKeyPress}
                       onFocus={() =>
                         searchQuery.length > 1 && setShowSuggestions(true)
                       }
@@ -224,7 +472,10 @@ function HomePage() {
                       </button>
                     )}
                   </div>
-                  <Button className="bg-orange-500 hover:bg-orange-600 rounded-full ml-2">
+                  <Button
+                    className="bg-orange-500 hover:bg-orange-600 rounded-full ml-2"
+                    onClick={handleSearch}
+                  >
                     <Search className="h-5 w-5 text-white" />
                     <span className="sr-only">Search</span>
                   </Button>
@@ -241,6 +492,7 @@ function HomePage() {
                             onClick={() => {
                               setSearchQuery(suggestion);
                               setShowSuggestions(false);
+                              handleSearch();
                             }}
                           >
                             <Search className="h-4 w-4 text-orange-500 mr-2" />
@@ -252,52 +504,34 @@ function HomePage() {
                   </div>
                 )}
               </div>
-
-              <div className="flex gap-2 mt-4">
+              <div className="flex flex-wrap gap-2 mt-4 z-{2000}">
                 <Button
                   variant="outline"
-                  className="rounded-full border-orange-200 bg-white hover:bg-orange-100"
+                  className="w-full sm:w-auto rounded-full border-orange-200 bg-white hover:bg-orange-100 relative z-{1000}"
+                  onClick={() => fileInputRef.current.click()}
+                  disabled={isImageSearchLoading}
+                  style={{ zIndex: 2000 }}
                 >
                   <Camera className="h-5 w-5 text-orange-500 mr-2" />
-                  <span>Image Search</span>
+                  <span>
+                    {isImageSearchLoading ? "Searching..." : "Image Search"}
+                  </span>
                 </Button>
-
-                {/* Price Range Filter */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="rounded-full border-orange-200 bg-white hover:bg-orange-100"
-                    >
-                      <DollarSign className="h-5 w-5 text-orange-500 mr-2" />
-                      <span>
-                        Price: {formatPriceRange(priceRange[0])} -{" "}
-                        {formatPriceRange(priceRange[1])}
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Price Range</h4>
-                      <div className="pt-4">
-                        <Slider
-                          defaultValue={priceRange}
-                          min={1}
-                          max={3}
-                          step={1}
-                          onValueChange={setPriceRange}
-                          className="mb-6"
-                        />
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span>$</span>
-                          <span>$$</span>
-                          <span>$$$</span>
-                        </div>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageSearch}
+                  accept="image/*"
+                  className="hidden"
+                />
               </div>
+
+              {/* Image search error message */}
+              {imageSearchError && (
+                <div className="mt-2 text-sm text-red-500">
+                  {imageSearchError}
+                </div>
+              )}
             </div>
 
             {/* Hero Illustration */}
@@ -365,7 +599,7 @@ function HomePage() {
 
         {/* Restaurant Grid with Skeleton Loading */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading
+          {loading || isImageSearchLoading
             ? // Skeleton loading state
               Array(6)
                 .fill()
@@ -402,14 +636,14 @@ function HomePage() {
                     <div className="relative h-48 w-full">
                       <img
                         src={
-                          restaurant.image ||
+                          restaurant.image_url ||
                           "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=2074&auto=format&fit=crop"
                         }
                         alt={restaurant.name}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      {restaurant.isNew && (
+                      {restaurant.is_new && (
                         <div className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
                           NEW
                         </div>
@@ -419,7 +653,7 @@ function HomePage() {
                           {restaurant.name}
                         </h3>
                         <p className="text-orange-200 text-sm">
-                          {restaurant.cuisine}
+                          {restaurant.cuisine_type}
                         </p>
                       </div>
                     </div>
@@ -427,31 +661,35 @@ function HomePage() {
                       <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="h-4 w-4 text-orange-500 mr-1" />
-                          <span>{restaurant.distance}</span>
+                          <span>{restaurant.distance || "Nearby"}</span>
                         </div>
                         <div className="flex items-center bg-orange-100 px-2 py-1 rounded-lg">
                           <Star className="h-4 w-4 text-orange-500 mr-1 fill-orange-500" />
                           <span className="text-sm font-medium">
-                            {restaurant.rating}
+                            {restaurant.rating || "N/A"}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center text-sm text-gray-600 mb-3">
                         <Clock className="h-4 w-4 text-orange-500 mr-1" />
-                        <span>{restaurant.openingHours || "Open Now"}</span>
+                        <span>{restaurant.opening_hours || "Open Now"}</span>
                         <span className="mx-2">•</span>
-                        <span>{restaurant.priceRange}</span>
+                        <span>{restaurant.price_range || "$"}</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {restaurant.tags &&
-                          restaurant.tags.slice(0, 3).map((tag, index) => (
-                            <span
-                              key={index}
-                              className="bg-orange-50 text-orange-800 px-2 py-1 rounded-full text-xs"
-                            >
-                              {tag}
-                            </span>
-                          ))}
+                          restaurant.tags
+                            .split(",")
+                            .map((tag) => tag.trim())
+                            .slice(0, 3)
+                            .map((tag, index) => (
+                              <span
+                                key={index}
+                                className="bg-orange-50 text-orange-800 px-2 py-1 rounded-full text-xs"
+                              >
+                                {tag}
+                              </span>
+                            ))}
                       </div>
                     </div>
                   </div>

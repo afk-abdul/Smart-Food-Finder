@@ -2,6 +2,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
+from restaurants.serializers import RestaurantSerializer
+from .models import Favourite
 
 User = get_user_model()
 
@@ -42,3 +44,13 @@ class LoginSerializer(serializers.Serializer):
                 }
             }
         raise serializers.ValidationError("Invalid email or password")
+    
+
+class FavouriteSerializer(serializers.ModelSerializer):
+    restaurant_id = serializers.IntegerField(source='restaurant.id', read_only=True)
+    # Include any other restaurant fields you need
+    restaurant_name = serializers.CharField(source='restaurant.name', read_only=True)
+    
+    class Meta:
+        model = Favourite
+        fields = ['restaurant_id', 'restaurant_name']  # Exclude the default 'id' field

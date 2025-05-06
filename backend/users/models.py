@@ -37,3 +37,7 @@ class Favourite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     restaurant = models.ForeignKey('restaurants.Restaurant', on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('user', 'restaurant')
+
+
