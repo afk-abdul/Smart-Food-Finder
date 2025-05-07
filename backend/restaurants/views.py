@@ -159,7 +159,7 @@ class NotficationUpdateView(APIView):
 
   
 
-class DealCreateView(APIView):
+class DealCreateView(generics.ListCreateAPIView):
     serializer_class = DealSerializer
     permission_classes = [IsAuthenticated]
 
@@ -171,7 +171,7 @@ class DealCreateView(APIView):
         restaurant = Restaurant.objects.filter(id=self.request.user.id).first()
         return Deal.objects.filter(restaurant=restaurant, is_valid=True, dateTime__gte=now().date())
     
-class DealUpdateView(APIView):
+class DealUpdateView(generics.UpdateAPIView):
     serializer_class = DealSerializer
     permission_classes = [IsAuthenticated]
 
@@ -181,7 +181,7 @@ class DealUpdateView(APIView):
             return Deal.objects.filter(restaurant=restaurant)
         return Deal.objects.none()
 
-class DealDeleteView(APIView):
+class DealDeleteView(generics.DeleteAPIView):
     serializer_class = DealSerializer
     permission_classes = [IsAuthenticated]
 
