@@ -65,9 +65,9 @@ function MenuItems()
             formData.append("price", updatedItem.price);
             formData.append("category", updatedItem.category);
 
-            if (updatedItem.image instanceof File)
+            if (updatedItem.image_upload)
             {
-                formData.append("image_upload", updatedItem.image);
+                formData.append("image_upload", updatedItem.image_upload);
             }
 
             await axiosInstance.put(`/menu-items/${id}/`, formData, {
@@ -341,7 +341,21 @@ function MenuItems()
                                                 }}>
                                                 <Edit className="w-4 h-4" />
                                             </button>
-                                            <button className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100">
+                                            <button className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100"
+                                                onClick={async () =>
+                                                {
+                                                    if (window.confirm("Are you sure you want to delete this item?"))
+                                                    {
+                                                        try
+                                                        {
+                                                            await axiosInstance.delete(`/menu-items/${item.id}/`);
+                                                            setMenuItems(menuItems.filter((i) => i.id !== item.id));
+                                                        } catch (error)
+                                                        {
+                                                            console.error("Error deleting item:", error);
+                                                        }
+                                                    }
+                                                }}>
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
