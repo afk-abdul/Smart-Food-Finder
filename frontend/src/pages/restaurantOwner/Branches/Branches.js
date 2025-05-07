@@ -110,12 +110,18 @@ const ViewBranches = () =>
                                     className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                                 >
                                     <div className="p-4">
-                                        <div className="flex justify-between items-start">
-                                            <h3 className="font-bold text-lg">{item.location}</h3>
+                                        <div className="relative h-60">
+                                            <img
+                                                src={`data:image/png;base64,${item.image}` || "/placeholder.png"}
+                                                alt={item.name}
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
-                                        <div className="flex justify-between items-end">
-                                            <p className="text-gray-600 text-sm line-clamp-2">{item.city}, {item.country}</p>
-
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex flex-col justify-between items-start">
+                                                <h3 className="font-bold text-lg">{item.location}</h3>
+                                                <p className="text-gray-600 text-sm line-clamp-2">{item.city}, {item.country}</p>
+                                            </div>
                                             <div className="flex space-x-2">
                                                 <button className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100" onClick={() => handleDelete(item.id)}>
                                                     <Trash2 className="w-4 h-4" />
