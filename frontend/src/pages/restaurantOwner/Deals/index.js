@@ -188,7 +188,20 @@ function DealsView()
 
                                         <button
                                             className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100"
-                                        // onClick={() => handleDeleteDeal(deal.id)}
+                                            onClick={async () =>
+                                            {
+                                                if (window.confirm("Are you sure you want to delete this item?"))
+                                                {
+                                                    try
+                                                    {
+                                                        await axiosInstance.delete(`/delete-deal/${deal.id}/`);
+                                                        setDeals(deals.filter((i) => i.id !== deal.id));
+                                                    } catch (error)
+                                                    {
+                                                        console.error("Error deleting item:", error);
+                                                    }
+                                                }
+                                            }}
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>

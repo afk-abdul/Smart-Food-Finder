@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../utils/axiosInstance";
 import { ShoppingBag, Plus, Minus, Trash2, Search, Calendar, ImageIcon, FileText, Check, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router";
 function CreateDeal()
 {
@@ -13,6 +14,8 @@ function CreateDeal()
     const [loading, setLoading] = useState(true)
 
     const [selectedCategory, setSelectedCategory] = useState(0)
+
+    const [working, setWorking] = useState(false)
 
     // Fetch Menu Items & Categories
     useEffect(() =>
@@ -78,6 +81,8 @@ function CreateDeal()
         });
     };
 
+    const navigate = useNavigate();
+
 
     // Submit Deal
     const handleSubmit = async () =>
@@ -88,6 +93,7 @@ function CreateDeal()
             alert("Please fill all fields and select at least one item.");
             return;
         }
+        setWorking(true)
 
         if (dealId)
         {
@@ -100,9 +106,10 @@ function CreateDeal()
                     image_upload: deal.image_upload,
                     items: selectedItems.map((item) => ({ item: item.id, quantity: item.quantity })),
                 });
-                alert("Deal updated successfully!");
                 setDeal({ description: "", total_price: "", dateTime: "" });
                 setSelectedItems([]);
+                navigate("/owner/deals")
+
             } catch (error)
             {
                 console.error("Error updating deal:", error);
@@ -119,14 +126,16 @@ function CreateDeal()
                     image_upload: deal.image_upload,
                     items: selectedItems.map((item) => ({ item: item.id, quantity: item.quantity })),
                 });
-                alert("Deal created successfully!");
                 setDeal({ description: "", total_price: "", dateTime: "" });
                 setSelectedItems([]);
+                navigate("/owner/deals")
+
             } catch (error)
             {
                 console.error("Error creating deal:", error);
             }
         }
+        setWorking(false)
     };
 
     const handleFileChange = (e) =>
@@ -417,7 +426,8 @@ function CreateDeal()
                                         }`}
                                     onClick={handleSubmit}
                                 >
-                                    {dealId ? "Update" : "Create"} Deal
+
+                                    {working ? (<span>{dealId ? "Updating..." : "Creating..."}</span>) : (<span>{dealId ? "Update Deal" : "Create Deal"}</span>)}
                                 </button>
                             </div>
                         </div>
