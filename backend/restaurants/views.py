@@ -181,7 +181,7 @@ class DealUpdateView(generics.UpdateAPIView):
             return Deal.objects.filter(restaurant=restaurant)
         return Deal.objects.none()
 
-class DealDeleteView(generics.DeleteAPIView):
+class DealDeleteView(generics.DestroyAPIView):
     serializer_class = DealSerializer
     permission_classes = [IsAuthenticated]
 
