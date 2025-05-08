@@ -272,8 +272,7 @@ class FoodImageSearchView(APIView):
 
 
 # views.py
-
-
+# Updated AddToFavouriteView with authentication fix
 class AddToFavouriteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -282,7 +281,7 @@ class AddToFavouriteView(APIView):
 
         # Check if the restaurant already exists in favourites
         if Favourite.objects.filter(user=user, restaurant_id=restaurant_id).exists():
-            return Response({'detail': 'Already in favourites.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': f'Already in favourites for user {user.username}.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             restaurant = Restaurant.objects.get(id=restaurant_id)
@@ -290,26 +289,34 @@ class AddToFavouriteView(APIView):
             return Response({'detail': 'Restaurant not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         Favourite.objects.create(user=user, restaurant=restaurant)
-        return Response({'detail': 'Added to favourites.'}, status=status.HTTP_201_CREATED)
+        return Response({'detail': f'Added to favourites for user {user.username}.'}, status=status.HTTP_201_CREATED)
 
 
+from rest_framework.exceptions import APIException
 
 class FavouriteListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        favourites = Favourite.objects.filter(user=request.user).select_related('restaurant')
-        serializer = FavouriteSerializer(favourites, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            favourites = Favourite.objects.filter(user=request.user).select_related('restaurant')
+            serializer = FavouriteSerializer(favourites, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error in FavouriteListView: {e}")
+            raise APIException("Could not fetch favourites. Please try again later.")
+
 
 
 class RemoveFromFavouriteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, restaurant_id):
+        user = request.user
         try:
-            favourite = Favourite.objects.get(user=request.user, restaurant_id=restaurant_id)
+            favourite = Favourite.objects.get(user=user, restaurant_id=restaurant_id)
             favourite.delete()
-            return Response({'detail': 'Removed from favourites.'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'detail': f'Removed from favourites for user {user.username}.'}, status=status.HTTP_204_NO_CONTENT)
         except Favourite.DoesNotExist:
-            return Response({'detail': 'Not in favourites.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': f'Not in favourites for user {user.username}.'}, status=status.HTTP_404_NOT_FOUND)

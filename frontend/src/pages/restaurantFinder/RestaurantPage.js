@@ -326,7 +326,10 @@ function RestaurantPage() {
       {/* Header Image */}
       <div className="relative h-64 md:h-96 w-full">
         <img
-          src={restaurant.image || "/api/placeholder/600/400"}
+          src={
+            restaurant.image ||
+            "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=2074&auto=format&fit=crop"
+          }
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
@@ -361,13 +364,13 @@ function RestaurantPage() {
           </div>
 
           <div className="flex flex-wrap gap-4 mb-6 text-sm">
-            <div className="flex items-center text-gray-700">
+            {/* <div className="flex items-center text-gray-700">
               <Clock className="h-4 w-4 text-orange-500 mr-1" />
               {restaurant.opening_hours || "Hours not available"}
-            </div>
+            </div> */}
             <div className="flex items-center text-gray-700">
               <MapPin className="h-4 w-4 text-orange-500 mr-1" />
-              {restaurant.address || "Address not available"}
+              {branches[0]?.city || "Address not available"}
             </div>
             {restaurant.phone && (
               <div className="flex items-center text-gray-700">
@@ -414,12 +417,9 @@ function RestaurantPage() {
             </Button>
 
             <Button variant="outline" className="rounded-lg border-gray-200">
-              <Share2 className="h-5 w-5 text-orange-500" />
-              <span className="sr-only">Share</span>
-            </Button>
-            <Button variant="outline" className="rounded-lg border-gray-200">
-              <BookmarkPlus className="h-5 w-5 text-orange-500" />
-              <span className="sr-only">Save</span>
+              <a href={`/restaurants/${restaurant.id}`} className="">
+                <Share2 className="h-5 w-5 text-orange-500" />
+              </a>
             </Button>
           </div>
 
@@ -447,7 +447,10 @@ function RestaurantPage() {
                     {item.image && (
                       <div className="relative h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
                         <img
-                          src={item.image || "/api/placeholder/200/200"}
+                          src={
+                            `data:image/png;base64,${item.image}` ||
+                            "/api/placeholder/200/200"
+                          }
                           alt={item.name}
                           className="w-full h-full object-cover"
                         />
@@ -480,6 +483,16 @@ function RestaurantPage() {
                     key={deal.id}
                     className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4"
                   >
+                    <div className="relative h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={
+                          `data:image/png;base64,${deal.image}` ||
+                          "/placeholder.png"
+                        }
+                        alt={deal.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="flex justify-between items-start">
                       <h3 className="font-semibold text-orange-700">
                         {deal.name}
@@ -516,28 +529,41 @@ function RestaurantPage() {
                 branches.map((branch) => (
                   <div
                     key={branch.id}
-                    className="border-b border-gray-100 pb-4 mb-4 last:border-0"
+                    className="border-b border-gray-100 pb-4 mb-4 last:border-0 flex"
                   >
-                    <h3 className="font-medium">
-                      {branch.name || `${restaurant.name} - ${branch.location}`}
-                    </h3>
-                    <div className="flex flex-wrap gap-4 mt-2 text-sm">
-                      <div className="flex items-center text-gray-700">
-                        <MapPin className="h-4 w-4 text-orange-500 mr-1" />
-                        {branch.address}
+                    <div className="relative h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src={
+                          `data:image/png;base64,${branch.image}` ||
+                          "/placeholder.png"
+                        }
+                        alt={branch.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">
+                        {branch.name ||
+                          `${restaurant.name} - ${branch.location}`}
+                      </h3>
+                      <div className="flex flex-wrap gap-4 mt-2 text-sm">
+                        <div className="flex items-center text-gray-700">
+                          <MapPin className="h-4 w-4 text-orange-500 mr-1" />
+                          {branch?.city} , {branch.country}
+                        </div>
+                        {branch.phone && (
+                          <div className="flex items-center text-gray-700">
+                            <Phone className="h-4 w-4 text-orange-500 mr-1" />
+                            {branch.phone}
+                          </div>
+                        )}
+                        {branch.opening_hours && (
+                          <div className="flex items-center text-gray-700">
+                            <Clock className="h-4 w-4 text-orange-500 mr-1" />
+                            {branch.opening_hours}
+                          </div>
+                        )}
                       </div>
-                      {branch.phone && (
-                        <div className="flex items-center text-gray-700">
-                          <Phone className="h-4 w-4 text-orange-500 mr-1" />
-                          {branch.phone}
-                        </div>
-                      )}
-                      {branch.opening_hours && (
-                        <div className="flex items-center text-gray-700">
-                          <Clock className="h-4 w-4 text-orange-500 mr-1" />
-                          {branch.opening_hours}
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))

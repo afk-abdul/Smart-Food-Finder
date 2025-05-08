@@ -488,7 +488,7 @@ function HomePage() {
                       {searchSuggestions.map((suggestion, index) => (
                         <li key={index}>
                           <button
-                            className="w-full text-left px-4 py-2 hover:bg-orange-50 flex items-center"
+                            className="w-full text-left px-4 py-2 hover:bg-orange-50 flex items-center z-200000"
                             onClick={() => {
                               setSearchQuery(suggestion);
                               setShowSuggestions(false);
@@ -496,7 +496,7 @@ function HomePage() {
                             }}
                           >
                             <Search className="h-4 w-4 text-orange-500 mr-2" />
-                            <span>{suggestion}</span>
+                            <span style={{ zIndex: 2000 }}>{suggestion}</span>
                           </button>
                         </li>
                       ))}
@@ -510,7 +510,7 @@ function HomePage() {
                   className="w-full sm:w-auto rounded-full border-orange-200 bg-white hover:bg-orange-100 relative z-{1000}"
                   onClick={() => fileInputRef.current.click()}
                   disabled={isImageSearchLoading}
-                  style={{ zIndex: 2000 }}
+                  style={{ zIndex: 1 }}
                 >
                   <Camera className="h-5 w-5 text-orange-500 mr-2" />
                   <span>
